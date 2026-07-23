@@ -22,6 +22,10 @@
     {
       "source": "/assets/(.*).png",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }]
+    },
+    {
+      "source": "/assets/(.*).jpg",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }]
     }
   ]
 }

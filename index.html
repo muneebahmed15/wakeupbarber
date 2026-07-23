@@ -45,10 +45,16 @@
 
   /* ---------- Brand mark (real logo) ---------- */
   .logo-mark{
-    height:52px; width:auto; display:block; flex:none;
+    height:56px; width:auto; display:block; flex:none;
+    border-radius:50%;
     filter:drop-shadow(0 2px 10px rgba(0,0,0,.45));
   }
-  .logo-mark.sm{height:38px;}
+  .logo-mark.sm{height:40px;}
+  .logo-mark.hero-logo{
+    height:auto; width:min(220px,46vw);
+    margin:0 0 18px;
+    border-radius:50%;
+  }
 
   /* ---------- Header ---------- */
   header{
@@ -103,16 +109,31 @@
   }
   .video-vignette{
     position: absolute;
-    inset: 0;
+    inset: -2%;
     z-index: 3;
     pointer-events: none;
-    background: radial-gradient(ellipse 62% 62% at 50% 50%, transparent 58%, var(--ink) 92%);
+    background:
+      radial-gradient(ellipse 58% 58% at 50% 50%, transparent 52%, rgba(14,14,16,.55) 78%, var(--ink) 96%),
+      linear-gradient(to right, var(--ink) 0%, transparent 14%, transparent 86%, var(--ink) 100%),
+      linear-gradient(to bottom, var(--ink) 0%, transparent 16%, transparent 84%, var(--ink) 100%);
+    filter: blur(10px);
+  }
+  .video-corner-blur{
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: 28px;
+    box-shadow: inset 0 0 60px 28px var(--ink);
   }
 
   .hero-video{
     width: 100%;
     height: auto;
     display: block;
+    border-radius: 28px;
+    -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 48%, transparent 78%);
+    mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 48%, transparent 78%);
   }
 
   .float-icon{
@@ -331,6 +352,7 @@
   <section class="hero">
     <div class="wrap grid">
       <div>
+        <img class="logo-mark hero-logo" src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber" />
         <span class="eyebrow">Long Island, NY · Booking online, finally</span>
         <h1 class="display">YOUR CHAIR<br>IS OPEN.</h1>
         <p class="lead">Pick a day, pick a time, show up. No calls, no guessing if he's around — if it's on the calendar, it's booked.</p>
@@ -338,16 +360,13 @@
       </div>
       <div class="hero-art">
         <div class="hero-glow"></div>
-        <div class="float-icon a"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg></div>
-        <div class="float-icon c"><svg viewBox="0 0 24 24"><path d="M4 20l6-14 3 7 3-7 4 14"/></svg></div>
-        
-        <!-- Embedded & Blended Video -->
         <div class="video-blend-container">
-          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-logo-transparent.png" aria-label="Wake Up Barber animated logo">
+          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg" aria-label="Wake Up Barber animated logo">
             <source src="assets/wakeupbarbershop.mp4" type="video/mp4">
             <img src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber logo">
           </video>
-          <div class="video-vignette"></div>
+          <div class="video-corner-blur" aria-hidden="true"></div>
+          <div class="video-vignette" aria-hidden="true"></div>
         </div>
       </div>
     </div>
