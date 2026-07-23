@@ -1,4 +1,4 @@
-import { Redis } from "@upstash/redis";
+const { Redis } = require("@upstash/redis");
 
 const ALLOWED_KEYS = new Set([
   "wub_settings",
@@ -24,7 +24,7 @@ function getRedis() {
   return new Redis({ url, token });
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   setCors(res);
 
   if (req.method === "OPTIONS") {
@@ -63,4 +63,4 @@ export default async function handler(req, res) {
       error: error instanceof Error ? error.message : "request failed"
     });
   }
-}
+};
