@@ -4,26 +4,30 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Book your haircut online with Wake Up Barber." />
-<meta name="theme-color" content="#0e0e10" />
+<meta name="theme-color" content="#0a0a0c" />
 <link rel="icon" type="image/png" href="assets/wakeupbarber-logo-transparent.png" />
 <title>Wake Up Barber — Book Your Chair</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0e0e10;
-    --panel:#18181c;
-    --panel-2:#212126;
-    --line:#2b2b31;
+    --ink:#0a0a0c;
+    --ink-soft:#121216;
+    --panel:#16161a;
+    --panel-2:#1e1e24;
+    --line:#2a2a32;
     --bone:#f3eee4;
     --bone-dim:#9a9389;
     --brass:#c9a15c;
     --brass-hi:#e4c583;
     --red:#b3453a;
+    --red-pole:#c23b30;
     --blue:#3a5872;
+    --blue-pole:#4a6d8a;
     --green:#6f8f5b;
-    --radius:14px;
-    --radius-sm:9px;
+    --radius:16px;
+    --radius-sm:10px;
+    --header-h:58px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html{scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%;}
@@ -35,204 +39,377 @@
     color:var(--bone);
     font-family:'DM Sans',sans-serif;
     -webkit-font-smoothing:antialiased;
+    position:relative;
   }
+  body::before{
+    content:"";
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      repeating-linear-gradient(
+        -52deg,
+        transparent 0px,
+        transparent 48px,
+        rgba(255,255,255,.012) 48px,
+        rgba(255,255,255,.012) 49px
+      );
+  }
+  body::after{
+    content:"";
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.35;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    background-size:180px 180px;
+    mix-blend-mode:overlay;
+  }
+  #client, #admin{position:relative; z-index:1;}
   .display{font-family:'Bebas Neue',sans-serif; letter-spacing:.03em;}
   .mono{font-family:'JetBrains Mono',monospace;}
-  .wrap{max-width:1040px; margin:0 auto; padding:0 20px;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 20px;}
   a{color:inherit;}
   button{font-family:inherit; cursor:pointer;}
   input,textarea,select{font-family:inherit;}
 
-  /* ---------- Brand mark (real logo) ---------- */
+  /* ---------- Brand mark ---------- */
   .logo-mark{
-    height:56px; width:auto; display:block; flex:none;
+    height:52px; width:auto; display:block; flex:none;
     border-radius:50%;
-    filter:drop-shadow(0 2px 10px rgba(0,0,0,.45));
+    filter:drop-shadow(0 2px 12px rgba(0,0,0,.5));
   }
-  .logo-mark.sm{height:40px;}
-  .logo-mark.hero-logo{
-    height:auto; width:min(220px,46vw);
-    margin:0 0 18px;
-    border-radius:50%;
-  }
+  .logo-mark.sm{height:38px;}
 
   /* ---------- Header ---------- */
   header{
-    position:sticky; top:0; z-index:30;
-    background:rgba(14,14,16,.86); backdrop-filter:blur(10px);
+    position:sticky; top:0; z-index:40;
+    background:rgba(10,10,12,.88); backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
-  header .bar{display:flex; align-items:center; justify-content:space-between; padding:14px 0;}
+  header .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0; min-height:var(--header-h);}
   .brand{display:flex; align-items:center; gap:10px; text-decoration:none;}
-  .brand .word{font-size:22px; line-height:1; color:var(--bone);}
-  .brand .word b{color:var(--brass-hi);}
-  header nav{display:flex; align-items:center; gap:18px; font-size:14px;}
+  header nav{display:flex; align-items:center; gap:16px; font-size:14px;}
   header nav a{text-decoration:none; color:var(--bone-dim); transition:color .15s;}
   header nav a:hover{color:var(--brass-hi);}
+
+  /* ---------- Buttons ---------- */
   .btn{
-    display:inline-flex; align-items:center; gap:8px;
-    padding:11px 20px; border-radius:999px; border:1px solid transparent;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 24px; border-radius:999px; border:1px solid transparent;
     font-weight:600; font-size:14px; text-decoration:none;
+    position:relative; overflow:hidden;
+    transition:transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
   }
   .btn-brass{background:var(--brass); color:#1a1408;}
-  .btn-brass:hover{background:var(--brass-hi);}
+  .btn-brass:hover{background:var(--brass-hi); box-shadow:0 4px 24px rgba(201,161,92,.28);}
+  .btn-brass:active{transform:scale(.97);}
   .btn-ghost{background:transparent; border-color:var(--line); color:var(--bone);}
-  .btn-ghost:hover{border-color:var(--brass);}
-
-  /* ---------- Hero ---------- */
-  .hero{padding:64px 0 40px; position:relative; overflow:hidden;}
-  .hero .grid{display:grid; grid-template-columns:.95fr 1.05fr; gap:32px; align-items:center;}
-  .eyebrow{
-    font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.14em;
-    color:var(--brass-hi); text-transform:uppercase; margin-bottom:14px; display:block;
+  .btn-ghost:hover{border-color:var(--brass); color:var(--brass-hi);}
+  .btn-sheen::after{
+    content:"";
+    position:absolute; top:0; left:-120%; width:60%; height:100%;
+    background:linear-gradient(105deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);
+    transform:skewX(-18deg);
+    animation:sheen 4.5s ease-in-out infinite;
   }
-  .hero h1{font-size:clamp(46px,7vw,84px); line-height:.92; margin:0 0 18px;}
-  .hero p.lead{color:var(--bone-dim); font-size:17px; max-width:46ch; margin:0 0 28px;}
-  .hero-art{position:relative; height:560px; display:flex; align-items:center; justify-content:center;}
-  
-  .hero-glow{
-    position:absolute; width:500px; height:500px; border-radius:50%;
-    background:radial-gradient(circle, rgba(201,161,92,.25) 0%, rgba(179,69,58,.12) 45%, transparent 70%);
-    filter:blur(10px);
-    z-index: 1;
+  @keyframes sheen{
+    0%,72%,100%{left:-120%;}
+    82%{left:160%;}
   }
 
-  /* Blended Video Wrapper */
-  .video-blend-container {
-    position: relative;
-    z-index: 2;
-    width: min(600px, 98%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: heroFloat 6s ease-in-out infinite;
+  /* ---------- Hero — single composition ---------- */
+  .hero{
+    position:relative;
+    padding:28px 0 0;
+    overflow:hidden;
+    text-align:center;
   }
-  .video-vignette{
-    position: absolute;
-    inset: -2%;
-    z-index: 3;
-    pointer-events: none;
+  .hero-atmo{
+    position:absolute; inset:0; pointer-events:none;
     background:
-      radial-gradient(ellipse 58% 58% at 50% 50%, transparent 52%, rgba(14,14,16,.55) 78%, var(--ink) 96%),
-      linear-gradient(to right, var(--ink) 0%, transparent 14%, transparent 86%, var(--ink) 100%),
-      linear-gradient(to bottom, var(--ink) 0%, transparent 16%, transparent 84%, var(--ink) 100%);
-    filter: blur(10px);
+      radial-gradient(ellipse 80% 55% at 50% 18%, rgba(201,161,92,.14) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 82% 72%, rgba(58,88,114,.1) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 35% at 12% 68%, rgba(179,69,58,.08) 0%, transparent 50%);
   }
-  .video-corner-blur{
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    border-radius: 28px;
-    box-shadow: inset 0 0 60px 28px var(--ink);
+  .hero-pole{
+    position:absolute; top:0; right:max(12px, calc(50% - 520px));
+    width:3px; height:min(180px, 28vw);
+    background:repeating-linear-gradient(
+      180deg,
+      var(--red-pole) 0px, var(--red-pole) 8px,
+      var(--bone) 8px, var(--bone) 16px,
+      var(--blue-pole) 16px, var(--blue-pole) 24px
+    );
+    opacity:.55; border-radius:2px;
+    box-shadow:0 0 20px rgba(194,59,48,.2);
   }
-
-  .hero-video{
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 28px;
-    -webkit-mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 48%, transparent 78%);
-    mask-image: radial-gradient(ellipse 72% 72% at 50% 50%, #000 48%, transparent 78%);
+  .hero-stage{
+    position:relative;
+    display:flex; flex-direction:column; align-items:center;
+    padding-bottom:20px;
   }
-
-  .float-icon{
-    position:absolute; width:52px; height:52px; border-radius:14px;
-    background:var(--panel); border:1px solid var(--line);
+  .hero-logo{
+    width:min(300px, 68vw);
+    height:auto;
+    border-radius:50%;
+    margin:8px 0 20px;
+    filter:drop-shadow(0 8px 40px rgba(201,161,92,.22)) drop-shadow(0 2px 16px rgba(0,0,0,.5));
+    animation:logoIn 1s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes logoIn{
+    from{opacity:0; transform:scale(.88) translateY(16px);}
+    to{opacity:1; transform:scale(1) translateY(0);}
+  }
+  .hero-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--bone-dim); margin:0 0 10px;
+    animation:logoIn .8s .15s cubic-bezier(.22,1,.36,1) both;
+  }
+  .hero h1{
+    font-size:clamp(52px, 11vw, 96px);
+    line-height:.9;
+    margin:0 0 24px;
+    max-width:12ch;
+    animation:logoIn .8s .25s cubic-bezier(.22,1,.36,1) both;
+  }
+  .hero-cta{
+    margin-bottom:36px;
+    padding:14px 32px;
+    font-size:15px;
+    animation:logoIn .8s .35s cubic-bezier(.22,1,.36,1) both;
+  }
+  .hero-video-stage{
+    position:relative;
+    width:min(920px, 108vw);
+    margin:0 auto -40px;
     display:flex; align-items:center; justify-content:center;
-    z-index: 3;
-    animation:sway 5s ease-in-out infinite;
+    animation:logoIn 1s .45s cubic-bezier(.22,1,.36,1) both;
   }
-  .float-icon svg{width:24px; height:24px; stroke:var(--brass-hi); fill:none; stroke-width:1.6;}
-  .float-icon.a{top:4%; left:0%; animation-delay:0s;}
-  .float-icon.b{bottom:8%; left:8%; animation-delay:1.2s;}
-  .float-icon.c{top:32%; right:2%; animation-delay:2.1s;}
-  
-  @keyframes sway{0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);}}
-  @keyframes heroFloat{0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);}}
-  
-  @media (prefers-reduced-motion:reduce){
-    .float-icon,.video-blend-container{animation:none !important;}
+  .hero-video-glow{
+    position:absolute;
+    width:85%; height:75%;
+    border-radius:50%;
+    background:radial-gradient(ellipse, rgba(201,161,92,.2) 0%, rgba(179,69,58,.08) 40%, transparent 70%);
+    filter:blur(40px);
+    z-index:0;
+    animation:videoBreathe 7s ease-in-out infinite;
+  }
+  @keyframes videoBreathe{
+    0%,100%{transform:scale(1); opacity:.85;}
+    50%{transform:scale(1.06); opacity:1;}
+  }
+  .video-blend-container{
+    position:relative; z-index:1;
+    width:100%;
+    animation:videoBreathe 7s ease-in-out infinite;
+  }
+  .hero-video{
+    width:100%; height:auto; display:block;
+    border-radius:0;
+    -webkit-mask-image:
+      radial-gradient(ellipse 78% 72% at 50% 48%, #000 42%, transparent 76%);
+    mask-image:
+      radial-gradient(ellipse 78% 72% at 50% 48%, #000 42%, transparent 76%);
+  }
+  .video-edge-fade{
+    position:absolute; inset:-4%;
+    z-index:2; pointer-events:none;
+    background:
+      radial-gradient(ellipse 70% 65% at 50% 50%, transparent 44%, rgba(10,10,12,.4) 68%, var(--ink) 88%),
+      linear-gradient(to right, var(--ink) 0%, transparent 10%, transparent 90%, var(--ink) 100%);
+    filter:blur(14px);
   }
 
-  /* ---------- Section shell ---------- */
-  section{padding:34px 0;}
-  .panel{
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-    padding:26px;
+  @media (prefers-reduced-motion:reduce){
+    .hero-logo,.hero-eyebrow,.hero h1,.hero-cta,.hero-video-stage,.video-blend-container,.hero-video-glow,.btn-sheen::after{
+      animation:none !important;
+    }
+    .btn-sheen::after{display:none;}
   }
-  .section-head{margin-bottom:22px;}
-  .section-head h2{font-size:34px; margin:2px 0 6px;}
-  .section-head p{color:var(--bone-dim); margin:0; font-size:14.5px;}
+
+  /* ---------- Booking section ---------- */
+  #book{padding:72px 0 34px;}
+  .booking-shell{
+    background:linear-gradient(180deg, var(--panel) 0%, rgba(22,22,26,.92) 100%);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:0;
+    overflow:hidden;
+    box-shadow:0 24px 80px rgba(0,0,0,.35);
+  }
+  .booking-progress{
+    position:sticky; top:var(--header-h); z-index:25;
+    background:rgba(16,16,20,.94);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+    padding:14px 22px;
+  }
+  .progress-track{
+    display:flex; gap:6px; align-items:center;
+    max-width:520px; margin:0 auto;
+  }
+  .progress-step{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+    position:relative;
+  }
+  .progress-step::after{
+    content:""; position:absolute; top:11px; left:calc(50% + 14px);
+    width:calc(100% - 28px); height:2px;
+    background:var(--line);
+    z-index:0;
+  }
+  .progress-step:last-child::after{display:none;}
+  .progress-dot{
+    width:24px; height:24px; border-radius:50%;
+    border:2px solid var(--line);
+    background:var(--panel-2);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
+    color:var(--bone-dim);
+    position:relative; z-index:1;
+    transition:border-color .2s, background .2s, color .2s, box-shadow .2s, transform .2s;
+  }
+  .progress-step.done .progress-dot{
+    border-color:var(--brass);
+    background:var(--brass);
+    color:#1a1408;
+  }
+  .progress-step.active .progress-dot{
+    border-color:var(--brass-hi);
+    background:var(--ink-soft);
+    color:var(--brass-hi);
+    box-shadow:0 0 0 3px rgba(201,161,92,.2);
+    transform:scale(1.08);
+  }
+  .progress-step.done::after{background:var(--brass);}
+  .progress-label{
+    font-size:10px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--bone-dim); font-family:'JetBrains Mono',monospace;
+    transition:color .2s;
+  }
+  .progress-step.active .progress-label{color:var(--brass-hi);}
+  .progress-step.done .progress-label{color:var(--bone-dim);}
+  .booking-body{padding:28px 26px 30px;}
+  .section-head{margin-bottom:26px; text-align:center;}
+  .section-head .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.14em;
+    color:var(--brass-hi); text-transform:uppercase; margin-bottom:8px; display:block;
+  }
+  .section-head h2{font-size:clamp(32px, 6vw, 42px); margin:0 0 8px;}
+  .section-head p{color:var(--bone-dim); margin:0; font-size:14.5px; max-width:42ch; margin-inline:auto;}
 
   /* ---------- Services ---------- */
-  .pill-row{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:26px;}
+  .step-block{margin-bottom:28px;}
+  .step-label{
+    font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--brass-hi); font-family:'JetBrains Mono',monospace;
+    margin:0 0 12px; display:flex; align-items:center; gap:8px;
+  }
+  .step-label::before{
+    content:""; width:3px; height:14px; border-radius:2px;
+    background:linear-gradient(180deg, var(--red-pole), var(--blue-pole));
+    opacity:.7;
+  }
+  .pill-row{display:flex; flex-wrap:wrap; gap:10px;}
   .pill{
     display:flex; align-items:center; gap:8px;
-    padding:11px 16px; border-radius:999px; border:1px solid var(--line);
+    padding:12px 18px; border-radius:999px; border:2px solid var(--line);
     background:var(--panel-2); color:var(--bone-dim); font-size:14px; font-weight:600;
+    transition:border-color .18s, background .18s, color .18s, transform .15s, box-shadow .18s;
   }
   .pill svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.7;}
-  .pill.active{background:var(--brass); border-color:var(--brass); color:#1a1408;}
+  .pill:not(.active):hover{border-color:rgba(201,161,92,.4); color:var(--bone);}
+  .pill.active{
+    background:var(--brass); border-color:var(--brass); color:#1a1408;
+    box-shadow:0 0 0 3px rgba(201,161,92,.25), 0 4px 16px rgba(201,161,92,.2);
+    transform:translateY(-1px);
+  }
+  .pill:active{transform:scale(.97);}
 
   /* ---------- Date strip ---------- */
-  .step-label{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--brass-hi); font-family:'JetBrains Mono',monospace; margin:0 0 10px;}
-  .date-strip{display:flex; gap:10px; overflow-x:auto; padding-bottom:10px; margin-bottom:26px; scroll-snap-type:x proximity;}
-  .date-strip::-webkit-scrollbar{height:6px;}
+  .date-strip{
+    display:flex; gap:10px; overflow-x:auto; padding:4px 2px 12px;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+  }
+  .date-strip::-webkit-scrollbar{height:5px;}
   .date-strip::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px;}
   .date-card{
-    flex:none; width:68px; min-height:66px; scroll-snap-align:start;
-    border:1px solid var(--line); background:var(--panel-2); border-radius:12px;
-    padding:11px 0; text-align:center;
+    flex:none; width:70px; min-height:72px; scroll-snap-align:start;
+    border:2px solid var(--line); background:var(--panel-2); border-radius:14px;
+    padding:12px 0; text-align:center;
+    transition:border-color .18s, background .18s, transform .15s, box-shadow .18s;
   }
-  .date-card .dow{font-size:11px; color:var(--bone-dim); text-transform:uppercase; letter-spacing:.06em;}
-  .date-card .num{font-family:'Bebas Neue'; font-size:26px; line-height:1.2;}
-  .date-card.selected{background:var(--brass); border-color:var(--brass);}
+  .date-card .dow{font-size:10px; color:var(--bone-dim); text-transform:uppercase; letter-spacing:.08em;}
+  .date-card .num{font-family:'Bebas Neue'; font-size:28px; line-height:1.15;}
+  .date-card.selected{
+    background:var(--brass); border-color:var(--brass);
+    box-shadow:0 0 0 3px rgba(201,161,92,.22), 0 6px 20px rgba(201,161,92,.25);
+    transform:translateY(-2px) scale(1.04);
+  }
   .date-card.selected .dow, .date-card.selected .num{color:#1a1408;}
-  .date-card.disabled{opacity:.32; pointer-events:none;}
+  .date-card.disabled{opacity:.28; pointer-events:none;}
+  .date-card:not(.disabled):not(.selected):hover{border-color:rgba(201,161,92,.45);}
   .date-card:not(.disabled){cursor:pointer;}
+  .date-card:active:not(.disabled){transform:scale(.96);}
 
   /* ---------- Time grid ---------- */
   .slot-grid{
-    display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:8px;
-    margin-bottom:26px;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:9px;
   }
   .slot{
     display:flex; align-items:center; justify-content:center;
-    min-height:46px; padding:10px 6px; border-radius:9px; border:1px solid var(--line);
-    background:var(--panel-2); color:var(--bone); font-family:'JetBrains Mono',monospace; font-size:13.5px;
+    min-height:48px; padding:10px 6px; border-radius:10px; border:2px solid var(--line);
+    background:var(--panel-2); color:var(--bone);
+    font-family:'JetBrains Mono',monospace; font-size:13.5px;
     text-align:center;
+    transition:border-color .15s, background .15s, transform .12s, box-shadow .15s;
   }
-  .slot:not(:disabled):hover{border-color:var(--brass);}
-  .slot.selected{background:var(--brass); border-color:var(--brass); color:#1a1408; font-weight:700;}
-  .slot:disabled{opacity:.28; cursor:not-allowed; text-decoration:line-through;}
-  .empty-note{color:var(--bone-dim); font-size:14px; font-style:italic; padding:6px 2px 26px;}
+  .slot:not(:disabled):not(.selected):hover{border-color:rgba(201,161,92,.5);}
+  .slot.selected{
+    background:var(--brass); border-color:var(--brass); color:#1a1408; font-weight:700;
+    box-shadow:0 0 0 3px rgba(201,161,92,.22), 0 4px 14px rgba(201,161,92,.2);
+    transform:scale(1.03);
+  }
+  .slot:not(:disabled):active{transform:scale(.95);}
+  .slot:disabled{opacity:.25; cursor:not-allowed; text-decoration:line-through;}
+  .empty-note{color:var(--bone-dim); font-size:14px; font-style:italic; padding:6px 2px 16px;}
 
   /* ---------- Form fields ---------- */
   .field-row{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;}
   .field{display:flex; flex-direction:column; gap:6px;}
   .field label{font-size:12.5px; color:var(--bone-dim);}
   .field input, .field textarea{
-    background:var(--panel-2); border:1px solid var(--line); border-radius:99px;
-    padding:12px 16px; color:var(--bone); font-size:16px; min-height:46px;
+    background:var(--panel-2); border:2px solid var(--line); border-radius:12px;
+    padding:12px 16px; color:var(--bone); font-size:16px; min-height:48px;
+    transition:border-color .15s, box-shadow .15s;
   }
-  .field input:focus, .field textarea:focus{outline:2px solid var(--brass); outline-offset:1px;}
-  .field textarea{resize:vertical; min-height:64px;}
+  .field input:focus, .field textarea:focus{
+    outline:none; border-color:var(--brass);
+    box-shadow:0 0 0 3px rgba(201,161,92,.15);
+  }
+  .field textarea{resize:vertical; min-height:72px; border-radius:12px;}
   .full-w{grid-column:1 / -1;}
   .home-note{font-size:12.5px; color:var(--brass-hi); margin:7px 2px 0; line-height:1.5;}
 
   .confirm-btn{
-    width:100%; padding:15px; border:none; border-radius:12px;
+    width:100%; padding:16px; border:none; border-radius:12px;
     background:var(--brass); color:#1a1408; font-weight:700; font-size:16px;
+    position:relative; overflow:hidden;
+    transition:background .15s, transform .12s, box-shadow .15s;
+    margin-top:4px;
   }
-  .confirm-btn:disabled{background:var(--panel-2); color:var(--bone-dim); cursor:not-allowed;}
-  .confirm-btn:not(:disabled):hover{background:var(--brass-hi);}
-  .form-msg{font-size:13px; color:var(--red); margin-top:8px; min-height:18px;}
+  .confirm-btn:not(:disabled){
+    box-shadow:0 4px 20px rgba(201,161,92,.2);
+  }
+  .confirm-btn:not(:disabled):hover{background:var(--brass-hi); box-shadow:0 6px 28px rgba(201,161,92,.3);}
+  .confirm-btn:not(:disabled):active{transform:scale(.98);}
+  .confirm-btn:disabled{background:var(--panel-2); color:var(--bone-dim); cursor:not-allowed; box-shadow:none;}
+  .confirm-btn.btn-sheen::after{animation-duration:5s;}
+  .form-msg{font-size:13px; color:var(--red); margin-top:10px; min-height:18px; text-align:center;}
 
   /* ---------- Confirmation ticket ---------- */
   .ticket{
     position:relative; background:var(--panel-2); border:1px solid var(--line);
     border-radius:16px; padding:30px 26px; overflow:hidden;
+    margin-top:26px;
   }
   .ticket::before, .ticket::after{
     content:""; position:absolute; left:0; right:0; height:14px;
@@ -249,16 +426,15 @@
   .tk-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
 
   /* ---------- Footer ---------- */
-  footer{border-top:1px solid var(--line); padding:36px 0 50px; margin-top:20px;}
+  footer{border-top:1px solid var(--line); padding:40px 0 52px; margin-top:24px;}
   footer .cols{display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px;}
-  footer .word{font-size:20px;}
   footer .meta{color:var(--bone-dim); font-size:14px; line-height:1.7;}
   .admin-link{background:none; border:none; color:var(--bone-dim); font-size:12.5px; text-decoration:underline; opacity:.6;}
   .admin-link:hover{opacity:1; color:var(--brass-hi);}
 
   /* ---------- PIN modal ---------- */
   .modal-overlay{
-    position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(4px);
+    position:fixed; inset:0; background:rgba(0,0,0,.78); backdrop-filter:blur(6px);
     display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;
   }
   .hidden{display:none !important;}
@@ -272,8 +448,9 @@
   #admin{display:none; background:var(--ink); min-height:100vh;}
   #admin.show{display:block;}
   #client.hide{display:none;}
-  .admin-bar{position:sticky; top:0; z-index:20; background:rgba(14,14,16,.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); padding:16px 0;}
+  .admin-bar{position:sticky; top:0; z-index:20; background:rgba(10,10,12,.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); padding:14px 0;}
   .admin-bar .bar{display:flex; justify-content:space-between; align-items:center;}
+  .admin-bar .word{font-size:22px; line-height:1; color:var(--bone);}
   .stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:26px 0;}
   .stat{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px;}
   .stat.stat-alert{border-color:var(--red); background:rgba(179,69,58,.12);}
@@ -312,24 +489,29 @@
   .toggle-row{display:flex; align-items:center; gap:10px; margin:16px 0;}
   .settings-form label{display:block; font-size:12.5px; color:var(--bone-dim); margin-bottom:6px;}
   .settings-form .field{margin-bottom:16px;}
+  .settings-form .panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:26px;}
   .checkbox-row{display:flex; gap:14px; flex-wrap:wrap;}
   .checkbox-row label{display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--bone);}
   .save-msg{font-size:13px; color:var(--green); margin-top:10px; min-height:16px;}
 
   @media (max-width:760px){
-    .hero .grid{grid-template-columns:1fr;}
-    .hero-art{height:380px; order:-1;}
     .field-row{grid-template-columns:1fr;}
     .stat-row{grid-template-columns:repeat(2,1fr);}
     footer .cols{flex-direction:column;}
+    .hero-pole{display:none;}
+    .booking-progress{padding:12px 14px;}
+    .progress-label{font-size:9px;}
+    .booking-body{padding:22px 18px 26px;}
+    #book{padding-top:56px;}
   }
   @media (max-width:480px){
     .wrap{padding:0 14px;}
-    .panel{padding:18px;}
     .date-strip{gap:8px;}
-    .date-card{width:60px;}
-    .slot-grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr)); gap:7px;}
-    .hero h1{font-size:clamp(40px,12vw,56px);}
+    .date-card{width:62px; min-height:66px;}
+    .slot-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:7px;}
+    .hero h1{font-size:clamp(44px, 13vw, 60px);}
+    .hero-logo{width:min(260px, 74vw);}
+    .hero-video-stage{width:112vw; margin-left:-6vw;}
   }
 </style>
 </head>
@@ -344,75 +526,104 @@
       </a>
       <nav>
         <a href="https://www.instagram.com/wakeupbarber" target="_blank" rel="noopener">Instagram</a>
-        <a href="#book" class="btn btn-brass">Book now</a>
+        <a href="#book" class="btn btn-brass btn-sheen">Book now</a>
       </nav>
     </div>
   </header>
 
   <section class="hero">
-    <div class="wrap grid">
-      <div>
-        <img class="logo-mark hero-logo" src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber" />
-        <span class="eyebrow">Long Island, NY · Booking online, finally</span>
-        <h1 class="display">YOUR CHAIR<br>IS OPEN.</h1>
-        <p class="lead">Pick a day, pick a time, show up. No calls, no guessing if he's around — if it's on the calendar, it's booked.</p>
-        <a href="#book" class="btn btn-brass">Book your cut →</a>
-      </div>
-      <div class="hero-art">
-        <div class="hero-glow"></div>
+    <div class="hero-atmo" aria-hidden="true"></div>
+    <div class="hero-pole" aria-hidden="true"></div>
+    <div class="wrap hero-stage">
+      <img class="hero-logo" src="assets/wakeupbarber-logo-main.png" alt="Wake Up Barber" width="300" height="300" />
+      <p class="hero-eyebrow">Long Island, NY</p>
+      <h1 class="display">YOUR CHAIR<br>IS OPEN.</h1>
+      <a href="#book" class="btn btn-brass btn-sheen hero-cta">Book your cut</a>
+      <div class="hero-video-stage">
+        <div class="hero-video-glow" aria-hidden="true"></div>
         <div class="video-blend-container">
-          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg" aria-label="Wake Up Barber animated logo">
+          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg" aria-label="Wake Up Barber shop video">
             <source src="assets/wakeupbarbershop.mp4" type="video/mp4">
             <img src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber logo">
           </video>
-          <div class="video-corner-blur" aria-hidden="true"></div>
-          <div class="video-vignette" aria-hidden="true"></div>
+          <div class="video-edge-fade" aria-hidden="true"></div>
         </div>
       </div>
     </div>
   </section>
 
   <section id="book" class="wrap">
-    <div class="panel">
-      <div class="section-head">
-        <span class="eyebrow">Book an appointment</span>
-        <h2 class="display">GRAB A SLOT</h2>
-        <p>Every cut is a 30‑minute slot. Times already taken or blocked off just won't show up.</p>
+    <div class="booking-shell">
+      <div class="booking-progress" id="bookingProgress" aria-label="Booking progress">
+        <div class="progress-track">
+          <div class="progress-step active" data-step="1">
+            <div class="progress-dot">1</div>
+            <span class="progress-label">Service</span>
+          </div>
+          <div class="progress-step" data-step="2">
+            <div class="progress-dot">2</div>
+            <span class="progress-label">Date</span>
+          </div>
+          <div class="progress-step" data-step="3">
+            <div class="progress-dot">3</div>
+            <span class="progress-label">Time</span>
+          </div>
+          <div class="progress-step" data-step="4">
+            <div class="progress-dot">4</div>
+            <span class="progress-label">Details</span>
+          </div>
+        </div>
       </div>
 
-      <div class="step-label">1 · Service</div>
-      <div class="pill-row" id="servicePills"></div>
-
-      <div class="step-label">2 · Date</div>
-      <div class="date-strip" id="dateStrip"></div>
-
-      <div class="step-label">3 · Time</div>
-      <div id="slotArea"></div>
-
-      <form id="bookingForm">
-        <div class="step-label" style="margin-top:8px;">4 · Your details</div>
-        <div class="field-row">
-          <div class="field"><label for="cName">Name</label><input id="cName" required placeholder="First & last name" /></div>
-          <div class="field"><label for="cPhone">Phone</label><input id="cPhone" required type="tel" placeholder="(555) 555-5555" /></div>
+      <div class="booking-body">
+        <div class="section-head">
+          <span class="eyebrow">Reserve your spot</span>
+          <h2 class="display">GRAB A SLOT</h2>
+          <p>Every cut is 30 minutes. Taken or blocked times simply won't appear.</p>
         </div>
-        <div class="field full-w hidden" id="addressField" style="margin-bottom:14px;">
-          <label for="cAddress">Address for the home visit</label>
-          <input id="cAddress" placeholder="Street, city, apt/unit if any" />
-          <p class="home-note">Home visits need his OK first — you'll get a text once he accepts. The slot's held for you either way.</p>
-        </div>
-        <div class="field full-w" style="margin-bottom:14px;">
-          <label for="cNote">Anything he should know? (optional)</label>
-          <textarea id="cNote" placeholder="e.g. skin fade, taper on the sides..."></textarea>
-        </div>
-        <button type="submit" class="confirm-btn" id="confirmBtn" disabled>Pick a date &amp; time to continue</button>
-        <div class="form-msg" id="formMsg"></div>
-      </form>
 
-      <div id="ticketArea"></div>
+        <div class="step-block" id="stepService">
+          <div class="step-label">Service</div>
+          <div class="pill-row" id="servicePills"></div>
+        </div>
+
+        <div class="step-block" id="stepDate">
+          <div class="step-label">Date</div>
+          <div class="date-strip" id="dateStrip"></div>
+        </div>
+
+        <div class="step-block" id="stepTime">
+          <div class="step-label">Time</div>
+          <div id="slotArea"></div>
+        </div>
+
+        <form id="bookingForm">
+          <div class="step-block" id="stepDetails">
+            <div class="step-label">Your details</div>
+            <div class="field-row">
+              <div class="field"><label for="cName">Name</label><input id="cName" required placeholder="First & last name" /></div>
+              <div class="field"><label for="cPhone">Phone</label><input id="cPhone" required type="tel" placeholder="(555) 555-5555" /></div>
+            </div>
+            <div class="field full-w hidden" id="addressField" style="margin-bottom:14px;">
+              <label for="cAddress">Address for the home visit</label>
+              <input id="cAddress" placeholder="Street, city, apt/unit if any" />
+              <p class="home-note">Home visits need his OK first — you'll get a text once he accepts. The slot's held for you either way.</p>
+            </div>
+            <div class="field full-w" style="margin-bottom:14px;">
+              <label for="cNote">Anything he should know? (optional)</label>
+              <textarea id="cNote" placeholder="e.g. skin fade, taper on the sides..."></textarea>
+            </div>
+            <button type="submit" class="confirm-btn btn-sheen" id="confirmBtn" disabled>Pick a date &amp; time to continue</button>
+            <div class="form-msg" id="formMsg"></div>
+          </div>
+        </form>
+
+        <div id="ticketArea"></div>
+      </div>
     </div>
   </section>
 
-  <footer>
+  <footer class="reveal">
     <div class="wrap cols">
       <div>
         <img class="logo-mark" src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber" style="margin-bottom:10px;" />
@@ -477,7 +688,7 @@
     </div>
 
     <div id="tab-settings" style="display:none;">
-      <div class="panel settings-form" style="max-width:560px;">
+      <div class="settings-form panel" style="max-width:560px;">
         <div class="field"><label>Shop name</label><input id="setShopName" /></div>
         <div class="field"><label>Tagline</label><input id="setTagline" /></div>
         <div class="field"><label>Instagram handle</label><input id="setInstagram" /></div>
@@ -618,6 +829,23 @@
     return allSlotsForDay(key).filter(function(t){ return slotStatus(key,t) === "open"; });
   }
 
+  function updateBookingProgress(){
+    var steps = document.querySelectorAll(".progress-step");
+    if(!steps.length) return;
+    var active = 1;
+    if(state.selectedService) active = 2;
+    if(state.selectedDate) active = 3;
+    if(state.selectedTime) active = 4;
+    var nameVal = document.getElementById("cName").value.trim();
+    var phoneVal = document.getElementById("cPhone").value.trim();
+    if(nameVal && phoneVal && state.selectedDate && state.selectedTime) active = 4;
+    steps.forEach(function(el){
+      var n = parseInt(el.getAttribute("data-step"), 10);
+      el.classList.toggle("done", n < active);
+      el.classList.toggle("active", n === active);
+    });
+  }
+
   function renderServicePills(){
     var box = document.getElementById("servicePills");
     box.innerHTML = "";
@@ -626,10 +854,11 @@
       b.type = "button";
       b.className = "pill" + (state.selectedService===s ? " active":"");
       b.innerHTML = (ICONS[s]||DEFAULT_ICON) + "<span>"+s+"</span>";
-      b.onclick = function(){ state.selectedService = s; renderServicePills(); toggleAddressField(); updateConfirmState(); };
+      b.onclick = function(){ state.selectedService = s; renderServicePills(); toggleAddressField(); updateConfirmState(); updateBookingProgress(); };
       box.appendChild(b);
     });
     if(!state.selectedService) state.selectedService = state.settings.services[0];
+    updateBookingProgress();
   }
 
   function toggleAddressField(){
@@ -655,25 +884,28 @@
       if(!closed && !full){
         card.onclick = async function(){
           state.selectedDate = key; state.selectedTime = null;
-          renderDateStrip(); renderSlotArea(); updateConfirmState();
+          renderDateStrip(); renderSlotArea(); updateConfirmState(); updateBookingProgress();
           state.bookings = await storeGet("wub_bookings", state.bookings);
           state.blocked = await storeGet("wub_blocked", state.blocked);
-          renderDateStrip(); renderSlotArea(); updateConfirmState();
+          renderDateStrip(); renderSlotArea(); updateConfirmState(); updateBookingProgress();
         };
       }
       box.appendChild(card);
     });
+    updateBookingProgress();
   }
 
   function renderSlotArea(){
     var box = document.getElementById("slotArea");
     if(!state.selectedDate){
       box.innerHTML = '<p class="empty-note">Pick a date above to see open times.</p>';
+      updateBookingProgress();
       return;
     }
     var slots = allSlotsForDay(state.selectedDate);
     if(slots.length === 0){
       box.innerHTML = '<p class="empty-note">No times configured for this day.</p>';
+      updateBookingProgress();
       return;
     }
     var grid = document.createElement("div");
@@ -686,7 +918,7 @@
       btn.className = "slot" + (state.selectedTime===t ? " selected":"");
       btn.textContent = fmt12(t);
       if(status !== "open" && state.selectedTime !== t){ btn.disabled = true; }
-      btn.onclick = function(){ state.selectedTime = t; renderSlotArea(); updateConfirmState(); };
+      btn.onclick = function(){ state.selectedTime = t; renderSlotArea(); updateConfirmState(); updateBookingProgress(); };
       grid.appendChild(btn);
     });
     box.innerHTML = "";
@@ -698,6 +930,7 @@
       box.appendChild(note);
     }
     box.appendChild(grid);
+    updateBookingProgress();
   }
 
   function updateConfirmState(){
@@ -709,6 +942,7 @@
       btn.disabled = true;
       btn.textContent = "Pick a date & time to continue";
     }
+    updateBookingProgress();
   }
 
   function icsDataUrl(booking){
@@ -735,7 +969,7 @@
     var box = document.getElementById("ticketArea");
     var isPending = booking.status === "pending";
     box.innerHTML =
-      '<div class="ticket" style="margin-top:26px;">' +
+      '<div class="ticket">' +
         '<div class="tk-top"><div><div class="tk-label">'+(isPending ? "Request sent — awaiting OK" : "Confirmed")+'</div><h3 class="display">'+booking.service+'</h3></div>' +
         '<img class="logo-mark sm" src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber" /></div>' +
         '<div class="tk-grid">' +
@@ -755,11 +989,13 @@
         '</p>' +
       '</div>';
     document.getElementById("bookingForm").style.display = "none";
+    document.getElementById("bookingProgress").style.display = "none";
     document.getElementById("bookAnotherBtn").onclick = function(){
       state.selectedDate = null; state.selectedTime = null;
       document.getElementById("cName").value = ""; document.getElementById("cPhone").value=""; document.getElementById("cNote").value=""; document.getElementById("cAddress").value="";
       box.innerHTML = "";
       document.getElementById("bookingForm").style.display = "block";
+      document.getElementById("bookingProgress").style.display = "";
       renderDateStrip(); renderSlotArea(); updateConfirmState();
     };
   }
@@ -856,7 +1092,7 @@
       byDate[key].forEach(function(b){
         var isPending = b.status === "pending";
         var subLine = '<a href="tel:'+b.phone.replace(/[^0-9+]/g,"")+'">'+b.phone+'</a>';
-        if(b.address) subLine += ' · 🏠 '+b.address;
+        if(b.address) subLine += ' · Home: '+b.address;
         if(b.note) subLine += ' · '+b.note;
         html +=
           '<div class="booking-row'+(isPending ? " pending":"")+'" data-id="'+b.id+'">' +
@@ -1089,6 +1325,8 @@
       t.onclick = function(){ switchAdminTab(t.getAttribute("data-tab")); };
     });
     document.getElementById("saveSettings").onclick = saveSettingsHandler;
+    document.getElementById("cName").addEventListener("input", updateBookingProgress);
+    document.getElementById("cPhone").addEventListener("input", updateBookingProgress);
   }
 
   async function init(){
