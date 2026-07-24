@@ -4,13 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Book your haircut online with Wake Up Barber." />
-<meta name="theme-color" content="#0a0a0c" />
-<link rel="icon" type="image/png" href="assets/wakeupbarber-logo-main.png" />
+<meta name="theme-color" content="#0a0a0c" id="themeColorMeta" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png" />
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
 <title>Wake Up Barber — Book Your Chair</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root, [data-theme="dark"]{
     --ink:#0a0a0c;
     --ink-soft:#121216;
     --panel:#16161a;
@@ -25,9 +27,52 @@
     --blue:#3a5872;
     --blue-pole:#4a6d8a;
     --green:#6f8f5b;
+    --danger:#e07a6f;
+    --header-bg:rgba(10,10,12,.88);
+    --stripe:rgba(255,255,255,.012);
+    --noise-opacity:.35;
     --radius:16px;
     --radius-sm:10px;
     --header-h:58px;
+    color-scheme: dark;
+  }
+  [data-theme="light"]{
+    --ink:#f4efe6;
+    --ink-soft:#ebe4d8;
+    --panel:#ffffff;
+    --panel-2:#f7f2ea;
+    --line:#ddd4c6;
+    --bone:#1a1714;
+    --bone-dim:#5f574c;
+    --brass:#a8843f;
+    --brass-hi:#8f6f2f;
+    --red:#b3453a;
+    --red-pole:#c23b30;
+    --blue:#3a5872;
+    --blue-pole:#4a6d8a;
+    --green:#4f7340;
+    --danger:#b3453a;
+    --header-bg:rgba(244,239,230,.9);
+    --stripe:rgba(26,23,20,.035);
+    --noise-opacity:.18;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]):not([data-theme="light"]){
+      --ink:#f4efe6;
+      --ink-soft:#ebe4d8;
+      --panel:#ffffff;
+      --panel-2:#f7f2ea;
+      --line:#ddd4c6;
+      --bone:#1a1714;
+      --bone-dim:#5f574c;
+      --brass:#a8843f;
+      --brass-hi:#8f6f2f;
+      --header-bg:rgba(244,239,230,.9);
+      --stripe:rgba(26,23,20,.035);
+      --noise-opacity:.18;
+      color-scheme: light;
+    }
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html{scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%;}
@@ -49,13 +94,13 @@
         -52deg,
         transparent 0px,
         transparent 48px,
-        rgba(255,255,255,.012) 48px,
-        rgba(255,255,255,.012) 49px
+        var(--stripe) 48px,
+        var(--stripe) 49px
       );
   }
   body::after{
     content:"";
-    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.35;
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:var(--noise-opacity);
     background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
     background-size:180px 180px;
     mix-blend-mode:overlay;
@@ -85,7 +130,7 @@
   /* ---------- Header ---------- */
   header{
     position:sticky; top:0; z-index:40;
-    background:rgba(10,10,12,.88); backdrop-filter:blur(14px);
+    background:var(--header-bg); backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
   header .bar{display:flex; align-items:center; justify-content:space-between; padding:10px 0; min-height:var(--header-h);}
@@ -93,6 +138,25 @@
   header nav{display:flex; align-items:center; gap:16px; font-size:14px;}
   header nav a{text-decoration:none; color:var(--bone-dim); transition:color .15s;}
   header nav a:hover{color:var(--brass-hi);}
+
+
+  .theme-toggle{
+    width:40px; height:40px; border-radius:999px;
+    border:1px solid var(--line); background:var(--panel-2);
+    color:var(--bone); display:inline-flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:border-color .15s, background .15s, transform .12s;
+  }
+  .theme-toggle:hover{border-color:var(--brass); color:var(--brass-hi);}
+  .theme-toggle:active{transform:scale(.96);}
+  .theme-toggle svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .theme-toggle .icon-sun{display:none;}
+  .theme-toggle .icon-moon{display:block;}
+  [data-theme="light"] .theme-toggle .icon-sun{display:block;}
+  [data-theme="light"] .theme-toggle .icon-moon{display:none;}
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]):not([data-theme="light"]) .theme-toggle .icon-sun{display:block;}
+    :root:not([data-theme="dark"]):not([data-theme="light"]) .theme-toggle .icon-moon{display:none;}
+  }
 
   /* ---------- Buttons ---------- */
   .btn{
@@ -197,15 +261,14 @@
   .video-blend-container{position:relative; z-index:1; width:100%;}
   .hero-video{
     width:100%; height:auto; display:block;
-    border-radius:18px;
-    -webkit-mask-image: radial-gradient(ellipse 92% 88% at 50% 50%, #000 55%, transparent 86%);
-    mask-image: radial-gradient(ellipse 92% 88% at 50% 50%, #000 55%, transparent 86%);
+    border-radius:16px;
   }
   .video-edge-fade{
-    position:absolute; inset:-4%; z-index:2; pointer-events:none;
+    position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:16px;
     background:
-      radial-gradient(ellipse 80% 78% at 50% 50%, transparent 52%, rgba(10,10,12,.35) 78%, var(--ink) 96%);
-    filter:blur(12px);
+      linear-gradient(to right, var(--ink) 0%, transparent 12%, transparent 88%, var(--ink) 100%),
+      linear-gradient(to bottom, var(--ink) 0%, transparent 10%, transparent 90%, var(--ink) 100%);
+    filter:blur(10px);
   }
   @media (prefers-reduced-motion:reduce){
     .hero-brand-row,.hero-eyebrow,.hero h1,.hero-lead,.hero-cta,.hero-video-stage,.hero-video-glow,.btn-sheen::after{
@@ -217,11 +280,11 @@
   /* ---------- Booking section ---------- */
   #book{padding:48px 0 34px;}
   .booking-shell{
-    background:linear-gradient(180deg, var(--panel) 0%, rgba(22,22,26,.92) 100%);
+    background:linear-gradient(180deg, var(--panel) 0%, var(--ink-soft) 100%);
     border:1px solid var(--line);
     border-radius:var(--radius);
     padding:0; overflow:hidden;
-    box-shadow:0 24px 80px rgba(0,0,0,.35);
+    box-shadow:0 24px 80px rgba(0,0,0,.18);
   }
   .storage-banner{
     display:none; margin:0 0 18px; padding:12px 14px;
@@ -232,7 +295,7 @@
     font-size:13.5px; line-height:1.4;
   }
   .storage-banner.show{display:block;}
-  .form-msg.error{color:#e07a6f;}
+  .form-msg.error{color:var(--danger);}
   .form-msg.ok{color:var(--green);}
   .booking-body{padding:28px 26px 30px;}
   .section-head{margin-bottom:26px; text-align:center;}
@@ -396,7 +459,7 @@
   #admin{display:none; background:var(--ink); min-height:100vh;}
   #admin.show{display:block;}
   #client.hide{display:none;}
-  .admin-bar{position:sticky; top:0; z-index:20; background:rgba(10,10,12,.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); padding:14px 0;}
+  .admin-bar{position:sticky; top:0; z-index:20; background:var(--header-bg); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); padding:14px 0;}
   .admin-bar .bar{display:flex; justify-content:space-between; align-items:center;}
   .admin-bar .word{font-size:22px; line-height:1; color:var(--bone);}
   .stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:26px 0;}
@@ -475,6 +538,10 @@
         <span class="brand-word">WAKE UP <span>BARBER</span></span>
       </a>
       <nav>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
         <a href="https://www.instagram.com/wakeupbarber" target="_blank" rel="noopener">Instagram</a>
         <a href="#book" class="btn btn-brass btn-sheen">Book now</a>
       </nav>
@@ -589,8 +656,12 @@
 <div id="admin">
   <div class="admin-bar">
     <div class="wrap bar">
-      <div class="brand"><img class="logo-mark sm" src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber" /><span class="word display">DASHBOARD</span></div>
-      <div style="display:flex; gap:10px;">
+      <div class="brand"><img class="logo-mark sm" src="assets/wakeupbarber-logo-transparent.png" alt="" /><span class="word display">DASHBOARD</span></div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button type="button" class="theme-toggle" id="themeToggleAdmin" aria-label="Toggle light and dark theme" title="Toggle theme">
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
         <button type="button" class="btn btn-ghost" id="exitAdmin">View as client</button>
         <button type="button" class="btn btn-ghost" id="logoutAdmin">Log out</button>
       </div>
@@ -648,6 +719,52 @@
 (function(){
   "use strict";
 
+
+  (function initTheme(){
+    var root = document.documentElement;
+    var meta = document.getElementById("themeColorMeta");
+    function systemTheme(){
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    }
+    function applyTheme(mode){
+      if(mode === "system"){
+        root.removeAttribute("data-theme");
+        if(meta) meta.setAttribute("content", systemTheme() === "light" ? "#f4efe6" : "#0a0a0c");
+      } else {
+        root.setAttribute("data-theme", mode);
+        if(meta) meta.setAttribute("content", mode === "light" ? "#f4efe6" : "#0a0a0c");
+      }
+    }
+    var saved = null;
+    try{ saved = localStorage.getItem("wub_theme"); }catch(e){}
+    if(saved === "light" || saved === "dark") applyTheme(saved);
+    else applyTheme("system");
+
+    function currentEffective(){
+      var attr = root.getAttribute("data-theme");
+      if(attr === "light" || attr === "dark") return attr;
+      return systemTheme();
+    }
+    function toggleTheme(){
+      var next = currentEffective() === "light" ? "dark" : "light";
+      applyTheme(next);
+      try{ localStorage.setItem("wub_theme", next); }catch(e){}
+    }
+    document.addEventListener("DOMContentLoaded", function(){
+      var btn = document.getElementById("themeToggle");
+      if(btn) btn.addEventListener("click", toggleTheme);
+      var btnAdmin = document.getElementById("themeToggleAdmin");
+      if(btnAdmin) btnAdmin.addEventListener("click", toggleTheme);
+    });
+    if(window.matchMedia){
+      window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", function(){
+        var savedNow = null;
+        try{ savedNow = localStorage.getItem("wub_theme"); }catch(e){}
+        if(savedNow !== "light" && savedNow !== "dark") applyTheme("system");
+      });
+    }
+  })();
+
   var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   var DOW_FULL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   var HOME_SERVICE = "Home Service (+$25)";
@@ -660,17 +777,16 @@
     hoursStart: "09:00",
     hoursEnd: "19:00",
     closedDays: [0],
-    services: ["Haircut","Haircut + Beard","Beard Trim","Kids Cut","Home Service (+$25)"],
+    services: ["Haircut","Haircut + Beard","Kids Cut","Home Service (+$25)"],
     paymentLink: ""
   };
   var ICONS = {
-    "Haircut": '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/></svg>',
-    "Haircut + Beard": '<svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>',
-    "Beard Trim": '<svg viewBox="0 0 24 24"><path d="M4 20l6-14 3 7 3-7 4 14"/></svg>',
-    "Kids Cut": '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>',
+    "Haircut": '<svg viewBox="0 0 24 24"><path d="M8.5 4.5c1.2 2.8 1.2 5.8 0 8.6"/><path d="M15.5 4.5c-1.2 2.8-1.2 5.8 0 8.6"/><path d="M7 14.5c1.5 2.2 3.2 3.5 5 4.5 1.8-1 3.5-2.3 5-4.5"/><path d="M9.2 8.2l-3.4-4.1M14.8 8.2l3.4-4.1"/><circle cx="7.2" cy="3.4" r="1.3"/><circle cx="16.8" cy="3.4" r="1.3"/></svg>',
+    "Haircut + Beard": '<svg viewBox="0 0 24 24"><path d="M8 4.8c1 2.4 1 5 0 7.4"/><path d="M16 4.8c-1 2.4-1 5 0 7.4"/><path d="M7.2 13.5c1.4 2.4 3.2 3.8 4.8 4.8 1.6-1 3.4-2.4 4.8-4.8"/><path d="M8 19c.8.7 1.9 1.2 4 1.2s3.2-.5 4-1.2"/><path d="M9.5 8l-2.8-3.4M14.5 8l2.8-3.4"/></svg>',
+    "Kids Cut": '<svg viewBox="0 0 24 24"><path d="M12 3l1.2 3.6L17 8l-3.2 1.4L12 13l-1.8-3.6L7 8l3.8-1.4z"/><path d="M8.5 15.5c1.1 1.6 2.3 2.5 3.5 3.1 1.2-.6 2.4-1.5 3.5-3.1"/><path d="M9.8 11.2l-2.2-2.6M14.2 11.2l2.2-2.6"/></svg>',
     "Home Service (+$25)": '<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/><path d="M9 19v-5h6v5"/></svg>'
   };
-  var DEFAULT_ICON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>';
+  var DEFAULT_ICON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 9v3l2 1.2"/></svg>';
 
   var state = {
     settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
@@ -749,6 +865,9 @@
 
   async function loadAll(){
     state.settings = await storeGet("wub_settings", DEFAULT_SETTINGS);
+    if(!state.settings.services) state.settings.services = DEFAULT_SETTINGS.services.slice();
+    state.settings.services = state.settings.services.filter(function(s){ return s !== "Beard Trim"; });
+    if(!state.settings.services.length) state.settings.services = DEFAULT_SETTINGS.services.slice();
     state.bookings = await storeGet("wub_bookings", []);
     state.blocked = await storeGet("wub_blocked", []);
     state.closedDates = await storeGet("wub_closedDates", []);
