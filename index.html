@@ -17,7 +17,7 @@
     --panel-2:#1e1e24;
     --line:#2a2a32;
     --bone:#f3eee4;
-    --bone-dim:#9a9389;
+    --bone-dim:#b7b0a5;
     --brass:#c9a15c;
     --brass-hi:#e4c583;
     --red:#b3453a;
@@ -70,11 +70,17 @@
 
   /* ---------- Brand mark ---------- */
   .logo-mark{
-    height:52px; width:auto; display:block; flex:none;
+    height:44px; width:auto; display:block; flex:none;
     border-radius:50%;
     filter:drop-shadow(0 2px 12px rgba(0,0,0,.5));
   }
-  .logo-mark.sm{height:38px;}
+  .logo-mark.sm{height:34px;}
+  .brand-word{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:22px; letter-spacing:.04em; line-height:1;
+    color:var(--bone);
+  }
+  .brand-word span{color:var(--brass-hi);}
 
   /* ---------- Header ---------- */
   header{
@@ -82,7 +88,7 @@
     background:rgba(10,10,12,.88); backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
-  header .bar{display:flex; align-items:center; justify-content:space-between; padding:12px 0; min-height:var(--header-h);}
+  header .bar{display:flex; align-items:center; justify-content:space-between; padding:10px 0; min-height:var(--header-h);}
   .brand{display:flex; align-items:center; gap:10px; text-decoration:none;}
   header nav{display:flex; align-items:center; gap:16px; font-size:14px;}
   header nav a{text-decoration:none; color:var(--bone-dim); transition:color .15s;}
@@ -113,180 +119,121 @@
     82%{left:160%;}
   }
 
-  /* ---------- Hero — single composition ---------- */
+  /* ---------- Hero — one first-viewport composition ---------- */
   .hero{
     position:relative;
-    padding:28px 0 0;
+    min-height:calc(100dvh - var(--header-h));
+    display:flex; align-items:center;
+    padding:24px 0 36px;
     overflow:hidden;
-    text-align:center;
   }
   .hero-atmo{
     position:absolute; inset:0; pointer-events:none;
     background:
-      radial-gradient(ellipse 80% 55% at 50% 18%, rgba(201,161,92,.14) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 40% at 82% 72%, rgba(58,88,114,.1) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 35% at 12% 68%, rgba(179,69,58,.08) 0%, transparent 50%);
+      radial-gradient(ellipse 70% 60% at 72% 42%, rgba(201,161,92,.16) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 45% at 12% 70%, rgba(179,69,58,.1) 0%, transparent 50%);
   }
-  .hero-pole{
-    position:absolute; top:0; right:max(12px, calc(50% - 520px));
-    width:3px; height:min(180px, 28vw);
-    background:repeating-linear-gradient(
-      180deg,
-      var(--red-pole) 0px, var(--red-pole) 8px,
-      var(--bone) 8px, var(--bone) 16px,
-      var(--blue-pole) 16px, var(--blue-pole) 24px
-    );
-    opacity:.55; border-radius:2px;
-    box-shadow:0 0 20px rgba(194,59,48,.2);
+  .hero-grid{
+    position:relative; width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);
+    gap:24px 32px; align-items:center;
   }
-  .hero-stage{
-    position:relative;
-    display:flex; flex-direction:column; align-items:center;
-    padding-bottom:20px;
+  .hero-copy{max-width:34rem;}
+  .hero-brand-row{
+    display:flex; align-items:center; gap:12px;
+    margin:0 0 16px;
+    animation:riseIn .65s cubic-bezier(.22,1,.36,1) both;
   }
   .hero-logo{
-    width:min(360px, 78vw);
-    height:auto;
-    border-radius:50%;
-    margin:4px 0 18px;
-    filter:drop-shadow(0 10px 48px rgba(201,161,92,.28)) drop-shadow(0 2px 16px rgba(0,0,0,.55));
-    animation:logoIn 1s cubic-bezier(.22,1,.36,1) both;
+    width:68px; height:68px; border-radius:50%; flex:none;
+    filter:drop-shadow(0 6px 22px rgba(201,161,92,.28));
   }
-  @keyframes logoIn{
-    from{opacity:0; transform:scale(.88) translateY(16px);}
-    to{opacity:1; transform:scale(1) translateY(0);}
+  .hero-brand-name{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(26px, 3.8vw, 38px);
+    letter-spacing:.04em; line-height:1; margin:0;
   }
+  .hero-brand-name span{color:var(--brass-hi);}
   .hero-eyebrow{
     font-family:'JetBrains Mono',monospace;
-    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--bone-dim); margin:0 0 10px;
-    animation:logoIn .8s .15s cubic-bezier(.22,1,.36,1) both;
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--brass-hi); margin:0 0 10px;
+    animation:riseIn .65s .06s cubic-bezier(.22,1,.36,1) both;
   }
   .hero h1{
-    font-size:clamp(52px, 11vw, 96px);
-    line-height:.9;
-    margin:0 0 24px;
-    max-width:12ch;
-    animation:logoIn .8s .25s cubic-bezier(.22,1,.36,1) both;
+    font-size:clamp(42px, 6.5vw, 72px);
+    line-height:.92; margin:0 0 12px;
+    animation:riseIn .65s .12s cubic-bezier(.22,1,.36,1) both;
+  }
+  .hero-lead{
+    color:var(--bone-dim); font-size:16px; line-height:1.5;
+    max-width:36ch; margin:0 0 20px;
+    animation:riseIn .65s .18s cubic-bezier(.22,1,.36,1) both;
   }
   .hero-cta{
-    margin-bottom:36px;
-    padding:14px 32px;
-    font-size:15px;
-    animation:logoIn .8s .35s cubic-bezier(.22,1,.36,1) both;
+    padding:14px 28px; font-size:15px;
+    animation:riseIn .65s .24s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(12px);}
+    to{opacity:1; transform:translateY(0);}
   }
   .hero-video-stage{
-    position:relative;
-    width:min(1180px, 100vw);
-    margin:0 auto -48px;
-    display:flex; align-items:center; justify-content:center;
-    animation:logoIn 1s .45s cubic-bezier(.22,1,.36,1) both;
+    position:relative; width:100%; max-width:680px; margin:0 auto;
+    animation:riseIn .75s .14s cubic-bezier(.22,1,.36,1) both;
   }
   .hero-video-glow{
-    position:absolute;
-    width:85%; height:75%;
-    border-radius:50%;
-    background:radial-gradient(ellipse, rgba(201,161,92,.2) 0%, rgba(179,69,58,.08) 40%, transparent 70%);
-    filter:blur(40px);
-    z-index:0;
+    position:absolute; inset:8% 6%; border-radius:50%;
+    background:radial-gradient(ellipse, rgba(201,161,92,.22) 0%, rgba(179,69,58,.08) 42%, transparent 72%);
+    filter:blur(36px); z-index:0;
     animation:videoBreathe 7s ease-in-out infinite;
   }
   @keyframes videoBreathe{
     0%,100%{transform:scale(1); opacity:.85;}
-    50%{transform:scale(1.06); opacity:1;}
+    50%{transform:scale(1.05); opacity:1;}
   }
-  .video-blend-container{
-    position:relative; z-index:1;
-    width:100%;
-    animation:videoBreathe 7s ease-in-out infinite;
-  }
+  .video-blend-container{position:relative; z-index:1; width:100%;}
   .hero-video{
     width:100%; height:auto; display:block;
-    border-radius:0;
-    -webkit-mask-image:
-      radial-gradient(ellipse 82% 76% at 50% 48%, #000 40%, transparent 78%);
-    mask-image:
-      radial-gradient(ellipse 82% 76% at 50% 48%, #000 40%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 78% 74% at 50% 48%, #000 46%, transparent 78%);
+    mask-image: radial-gradient(ellipse 78% 74% at 50% 48%, #000 46%, transparent 78%);
   }
   .video-edge-fade{
-    position:absolute; inset:-6%;
-    z-index:2; pointer-events:none;
+    position:absolute; inset:-8%; z-index:2; pointer-events:none;
     background:
-      radial-gradient(ellipse 68% 64% at 50% 48%, transparent 40%, rgba(10,10,12,.45) 66%, var(--ink) 90%),
-      linear-gradient(to right, var(--ink) 0%, transparent 12%, transparent 88%, var(--ink) 100%),
-      linear-gradient(to bottom, var(--ink) 0%, transparent 14%, transparent 86%, var(--ink) 100%);
-    filter:blur(18px);
+      radial-gradient(ellipse 66% 62% at 50% 48%, transparent 42%, rgba(10,10,12,.5) 70%, var(--ink) 92%),
+      linear-gradient(to right, var(--ink) 0%, transparent 14%, transparent 86%, var(--ink) 100%),
+      linear-gradient(to bottom, var(--ink) 0%, transparent 16%, transparent 84%, var(--ink) 100%);
+    filter:blur(16px);
   }
-
   @media (prefers-reduced-motion:reduce){
-    .hero-logo,.hero-eyebrow,.hero h1,.hero-cta,.hero-video-stage,.video-blend-container,.hero-video-glow,.btn-sheen::after{
+    .hero-brand-row,.hero-eyebrow,.hero h1,.hero-lead,.hero-cta,.hero-video-stage,.hero-video-glow,.btn-sheen::after{
       animation:none !important;
     }
     .btn-sheen::after{display:none;}
   }
 
   /* ---------- Booking section ---------- */
-  #book{padding:72px 0 34px;}
+  #book{padding:48px 0 34px;}
   .booking-shell{
     background:linear-gradient(180deg, var(--panel) 0%, rgba(22,22,26,.92) 100%);
     border:1px solid var(--line);
     border-radius:var(--radius);
-    padding:0;
-    overflow:hidden;
+    padding:0; overflow:hidden;
     box-shadow:0 24px 80px rgba(0,0,0,.35);
   }
-  .booking-progress{
-    position:sticky; top:var(--header-h); z-index:25;
-    background:rgba(16,16,20,.94);
-    backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--line);
-    padding:14px 22px;
-  }
-  .progress-track{
-    display:flex; gap:6px; align-items:center;
-    max-width:520px; margin:0 auto;
-  }
-  .progress-step{
-    flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
-    position:relative;
-  }
-  .progress-step::after{
-    content:""; position:absolute; top:11px; left:calc(50% + 14px);
-    width:calc(100% - 28px); height:2px;
-    background:var(--line);
-    z-index:0;
-  }
-  .progress-step:last-child::after{display:none;}
-  .progress-dot{
-    width:24px; height:24px; border-radius:50%;
-    border:2px solid var(--line);
-    background:var(--panel-2);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700;
-    color:var(--bone-dim);
-    position:relative; z-index:1;
-    transition:border-color .2s, background .2s, color .2s, box-shadow .2s, transform .2s;
-  }
-  .progress-step.done .progress-dot{
-    border-color:var(--brass);
-    background:var(--brass);
-    color:#1a1408;
-  }
-  .progress-step.active .progress-dot{
-    border-color:var(--brass-hi);
-    background:var(--ink-soft);
+  .storage-banner{
+    display:none; margin:0 0 18px; padding:12px 14px;
+    border:1px solid rgba(201,161,92,.35);
+    background:rgba(201,161,92,.08);
     color:var(--brass-hi);
-    box-shadow:0 0 0 3px rgba(201,161,92,.2);
-    transform:scale(1.08);
+    border-radius:var(--radius-sm);
+    font-size:13.5px; line-height:1.4;
   }
-  .progress-step.done::after{background:var(--brass);}
-  .progress-label{
-    font-size:10px; text-transform:uppercase; letter-spacing:.06em;
-    color:var(--bone-dim); font-family:'JetBrains Mono',monospace;
-    transition:color .2s;
-  }
-  .progress-step.active .progress-label{color:var(--brass-hi);}
-  .progress-step.done .progress-label{color:var(--bone-dim);}
+  .storage-banner.show{display:block;}
+  .form-msg.error{color:#e07a6f;}
+  .form-msg.ok{color:var(--green);}
   .booking-body{padding:28px 26px 30px;}
   .section-head{margin-bottom:26px; text-align:center;}
   .section-head .eyebrow{
@@ -499,20 +446,21 @@
     .field-row{grid-template-columns:1fr;}
     .stat-row{grid-template-columns:repeat(2,1fr);}
     footer .cols{flex-direction:column;}
-    .hero-pole{display:none;}
-    .booking-progress{padding:12px 14px;}
-    .progress-label{font-size:9px;}
+    .hero-grid{grid-template-columns:1fr; gap:18px;}
+    .hero{min-height:auto; padding:20px 0 28px;}
+    .hero-copy{text-align:left;}
+    .hero-video-stage{max-width:100%; order:-1;}
     .booking-body{padding:22px 18px 26px;}
-    #book{padding-top:56px;}
+    #book{padding-top:40px;}
   }
   @media (max-width:480px){
     .wrap{padding:0 14px;}
     .date-strip{gap:8px;}
     .date-card{width:62px; min-height:66px;}
     .slot-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:7px;}
-    .hero h1{font-size:clamp(44px, 13vw, 60px);}
-    .hero-logo{width:min(300px, 82vw);}
-    .hero-video-stage{width:100vw; margin-left:calc(50% - 50vw);}
+    .hero h1{font-size:clamp(40px, 12vw, 56px);}
+    .hero-logo{width:58px; height:58px;}
+    .hero-brand-name{font-size:28px;}
   }
 </style>
 </head>
@@ -523,7 +471,8 @@
   <header>
     <div class="wrap bar">
       <a href="#" class="brand" aria-label="Wake Up Barber home">
-        <img class="logo-mark" src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber" />
+        <img class="logo-mark" src="assets/wakeupbarber-logo-transparent.png" alt="" />
+        <span class="brand-word">WAKE UP <span>BARBER</span></span>
       </a>
       <nav>
         <a href="https://www.instagram.com/wakeupbarber" target="_blank" rel="noopener">Instagram</a>
@@ -534,18 +483,22 @@
 
   <section class="hero">
     <div class="hero-atmo" aria-hidden="true"></div>
-    <div class="hero-pole" aria-hidden="true"></div>
-    <div class="wrap hero-stage">
-      <img class="hero-logo" src="assets/wakeupbarber-logo-main.png" alt="Wake Up Barber" width="300" height="300" />
-      <p class="hero-eyebrow">Long Island, NY</p>
-      <h1 class="display">YOUR CHAIR<br>IS OPEN.</h1>
-      <a href="#book" class="btn btn-brass btn-sheen hero-cta">Book your cut</a>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div class="hero-brand-row">
+          <img class="hero-logo" src="assets/wakeupbarber-logo-transparent.png" alt="" width="68" height="68" />
+          <p class="hero-brand-name">WAKE UP <span>BARBER</span></p>
+        </div>
+        <p class="hero-eyebrow">Long Island, NY · Online booking</p>
+        <h1 class="display">YOUR CHAIR<br>IS OPEN.</h1>
+        <p class="hero-lead">Pick a day, pick a time, show up. If it&apos;s on the calendar, it&apos;s yours.</p>
+        <a href="#book" class="btn btn-brass btn-sheen hero-cta">Book your cut</a>
+      </div>
       <div class="hero-video-stage">
         <div class="hero-video-glow" aria-hidden="true"></div>
         <div class="video-blend-container">
-          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg" aria-label="Wake Up Barber shop video">
+          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg" aria-label="Wake Up Barber animated logo">
             <source src="assets/wakeupbarbershop.mp4" type="video/mp4">
-            <img src="assets/wakeupbarber-logo-transparent.png" alt="Wake Up Barber logo">
           </video>
           <div class="video-edge-fade" aria-hidden="true"></div>
         </div>
@@ -555,28 +508,8 @@
 
   <section id="book" class="wrap">
     <div class="booking-shell">
-      <div class="booking-progress" id="bookingProgress" aria-label="Booking progress">
-        <div class="progress-track">
-          <div class="progress-step active" data-step="1">
-            <div class="progress-dot">1</div>
-            <span class="progress-label">Service</span>
-          </div>
-          <div class="progress-step" data-step="2">
-            <div class="progress-dot">2</div>
-            <span class="progress-label">Date</span>
-          </div>
-          <div class="progress-step" data-step="3">
-            <div class="progress-dot">3</div>
-            <span class="progress-label">Time</span>
-          </div>
-          <div class="progress-step" data-step="4">
-            <div class="progress-dot">4</div>
-            <span class="progress-label">Details</span>
-          </div>
-        </div>
-      </div>
-
       <div class="booking-body">
+        <div id="storageBanner" class="storage-banner" role="status"></div>
         <div class="section-head">
           <span class="eyebrow">Reserve your spot</span>
           <h2 class="display">GRAB A SLOT</h2>
@@ -752,22 +685,66 @@
     adminSelectedDate: null
   };
 
+  var storageMode = "unknown"; // remote | local | unknown
+
+  function localGet(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      if(raw === null || raw === undefined) return fallback;
+      return JSON.parse(raw);
+    }catch(e){ return fallback; }
+  }
+  function localSet(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+  function showStorageBanner(msg){
+    var el = document.getElementById("storageBanner");
+    if(!el) return;
+    if(!msg){ el.classList.remove("show"); el.textContent = ""; return; }
+    el.textContent = msg;
+    el.classList.add("show");
+  }
+
   async function storeGet(key, fallback){
     try{
       var res = await fetch("/api/data/" + key, { cache: "no-store" });
-      if(!res.ok) return fallback;
-      var val = await res.json();
-      return (val === null || val === undefined) ? fallback : val;
-    }catch(e){ return fallback; }
+      if(res.ok){
+        var val = await res.json();
+        storageMode = "remote";
+        showStorageBanner("");
+        return (val === null || val === undefined) ? fallback : val;
+      }
+    }catch(e){ /* fall through to local */ }
+    storageMode = "local";
+    showStorageBanner("Cloud sync is offline on this device — bookings still save here until Redis is connected.");
+    return localGet(key, fallback);
   }
   async function storeSet(key, value){
+    // Always mirror locally so refresh doesn't lose data if remote is down
+    try{ localSet(key, value); }catch(e){}
     try{
-      await fetch("/api/data/" + key, {
+      var res = await fetch("/api/data/" + key, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(value)
       });
-    }catch(e){ console.error("storage set failed", key, e); }
+      if(res.ok){
+        storageMode = "remote";
+        showStorageBanner("");
+        return true;
+      }
+      var err = {};
+      try{ err = await res.json(); }catch(_e){}
+      storageMode = "local";
+      showStorageBanner("Couldn't sync to the cloud yet. Your booking is saved on this phone/browser.");
+      console.error("storage set failed", key, err);
+      return false;
+    }catch(e){
+      storageMode = "local";
+      showStorageBanner("Couldn't sync to the cloud yet. Your booking is saved on this phone/browser.");
+      console.error("storage set failed", key, e);
+      return false;
+    }
   }
 
   async function loadAll(){
@@ -830,22 +807,7 @@
     return allSlotsForDay(key).filter(function(t){ return slotStatus(key,t) === "open"; });
   }
 
-  function updateBookingProgress(){
-    var steps = document.querySelectorAll(".progress-step");
-    if(!steps.length) return;
-    var active = 1;
-    if(state.selectedService) active = 2;
-    if(state.selectedDate) active = 3;
-    if(state.selectedTime) active = 4;
-    var nameVal = document.getElementById("cName").value.trim();
-    var phoneVal = document.getElementById("cPhone").value.trim();
-    if(nameVal && phoneVal && state.selectedDate && state.selectedTime) active = 4;
-    steps.forEach(function(el){
-      var n = parseInt(el.getAttribute("data-step"), 10);
-      el.classList.toggle("done", n < active);
-      el.classList.toggle("active", n === active);
-    });
-  }
+  function updateBookingProgress(){ /* progress chrome removed */ }
 
   function renderServicePills(){
     var box = document.getElementById("servicePills");
@@ -990,14 +952,12 @@
         '</p>' +
       '</div>';
     document.getElementById("bookingForm").style.display = "none";
-    document.getElementById("bookingProgress").style.display = "none";
-    document.getElementById("bookAnotherBtn").onclick = function(){
+        document.getElementById("bookAnotherBtn").onclick = function(){
       state.selectedDate = null; state.selectedTime = null;
       document.getElementById("cName").value = ""; document.getElementById("cPhone").value=""; document.getElementById("cNote").value=""; document.getElementById("cAddress").value="";
       box.innerHTML = "";
       document.getElementById("bookingForm").style.display = "block";
-      document.getElementById("bookingProgress").style.display = "";
-      renderDateStrip(); renderSlotArea(); updateConfirmState();
+            renderDateStrip(); renderSlotArea(); updateConfirmState();
     };
   }
 
@@ -1028,9 +988,16 @@
       status: isHome ? "pending" : "booked", createdAt: new Date().toISOString()
     };
     state.bookings.push(booking);
-    await storeSet("wub_bookings", state.bookings);
+    var saved = await storeSet("wub_bookings", state.bookings);
     renderDateStrip();
     renderTicket(booking);
+    if(!saved){
+      msg.className = "form-msg error";
+      msg.textContent = "Booked on this device. Cloud sync is still connecting — tell the barber if you booked from another phone.";
+    } else {
+      msg.className = "form-msg ok";
+      msg.textContent = "";
+    }
   }
 
   function renderClientFooter(){
