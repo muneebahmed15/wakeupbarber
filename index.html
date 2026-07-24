@@ -245,57 +245,35 @@
     to{opacity:1; transform:translateY(0);}
   }
   .hero-video-stage{
-    position:relative; width:100%; max-width:720px; margin:0 auto;
+    position:relative; width:100%; max-width:520px; margin:0 auto;
     animation:riseIn .75s .14s cubic-bezier(.22,1,.36,1) both;
   }
-  /* Soft ambient so the clip sits in the page, not as a floating card */
-  .hero-video-stage::before{
-    content:"";
-    position:absolute; inset:-18% -12%;
-    pointer-events:none; z-index:0;
-    background:
-      radial-gradient(ellipse 55% 50% at 50% 48%, rgba(201,161,92,.18) 0%, transparent 70%);
-    filter:blur(8px);
-  }
-  [data-theme="light"] .hero-video-stage::before{
-    background:
-      radial-gradient(ellipse 55% 50% at 50% 48%, rgba(168,132,63,.16) 0%, transparent 70%);
-  }
-  @media (prefers-color-scheme: light){
-    :root:not([data-theme="dark"]):not([data-theme="light"]) .hero-video-stage::before{
-      background:
-        radial-gradient(ellipse 55% 50% at 50% 48%, rgba(168,132,63,.16) 0%, transparent 70%);
-    }
-  }
+  /* One fixed look: circular emblem crop — no blur, no theme-tinted edges */
   .hero-video-blend{
-    position:relative; z-index:1;
-    border-radius:28px;
+    position:relative;
+    width:100%;
+    aspect-ratio:1 / 1;
+    border-radius:50%;
     overflow:hidden;
-    background:var(--ink);
-    /* theme-aware vignette — edges dissolve into the page */
-    -webkit-mask-image:radial-gradient(ellipse 78% 72% at 50% 50%, #000 42%, transparent 78%);
-    mask-image:radial-gradient(ellipse 78% 72% at 50% 50%, #000 42%, transparent 78%);
-  }
-  .hero-video-blend::after{
-    content:"";
-    position:absolute; inset:0; pointer-events:none; z-index:2;
-    background:
-      linear-gradient(90deg, var(--ink) 0%, transparent 16%, transparent 84%, var(--ink) 100%),
-      linear-gradient(180deg, var(--ink) 0%, transparent 18%, transparent 82%, var(--ink) 100%);
-    box-shadow:inset 0 0 48px 28px var(--ink);
+    background:#ebe4d6; /* matches video cream; never changes with theme */
+    box-shadow:0 18px 40px rgba(0,0,0,.22);
   }
   .hero-video{
-    width:100%; height:auto; display:block;
-    background:var(--ink);
-    /* gentle edge soften without a hard card plate */
-    filter:saturate(1.02) contrast(1.02);
+    position:absolute;
+    left:50%; top:50%;
+    width:178%; /* 16:9 → fill the circle without letterbox bars */
+    height:auto;
+    min-height:100%;
+    transform:translate(-50%, -50%);
+    display:block;
+    background:#ebe4d6;
+    border:0;
   }
   @media (prefers-reduced-motion:reduce){
     .hero-brand-row,.hero-eyebrow,.hero h1,.hero-lead,.hero-cta,.hero-video-stage,.btn-sheen::after{
       animation:none !important;
     }
     .btn-sheen::after{display:none;}
-    .hero-video-stage::before{filter:none;}
   }
 
   /* ---------- Booking section ---------- */
@@ -584,8 +562,8 @@
       </div>
       <div class="hero-video-stage">
         <div class="hero-video-blend">
-          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg?v=6" aria-label="Wake Up Barber animated logo">
-            <source src="assets/wakeupbarbershop.mp4?v=6" type="video/mp4">
+          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg?v=7" aria-label="Wake Up Barber animated logo">
+            <source src="assets/wakeupbarbershop.mp4?v=7" type="video/mp4">
           </video>
         </div>
       </div>
