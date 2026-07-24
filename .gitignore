@@ -6,3 +6,5 @@ node_modules/
 .DS_Store
 *.log
 wake-up-barber-updated.zip
+.vercel
+.env*
