@@ -164,10 +164,11 @@
   .hero h1{
     font-size:clamp(42px, 6.5vw, 72px);
     line-height:.92; margin:0 0 12px;
+    color:var(--bone);
     animation:riseIn .65s .12s cubic-bezier(.22,1,.36,1) both;
   }
   .hero-lead{
-    color:var(--bone-dim); font-size:16px; line-height:1.5;
+    color:#d2cbc0; font-size:16px; line-height:1.5;
     max-width:36ch; margin:0 0 20px;
     animation:riseIn .65s .18s cubic-bezier(.22,1,.36,1) both;
   }
@@ -180,7 +181,7 @@
     to{opacity:1; transform:translateY(0);}
   }
   .hero-video-stage{
-    position:relative; width:100%; max-width:680px; margin:0 auto;
+    position:relative; width:100%; max-width:760px; margin:0 auto;
     animation:riseIn .75s .14s cubic-bezier(.22,1,.36,1) both;
   }
   .hero-video-glow{
@@ -196,16 +197,15 @@
   .video-blend-container{position:relative; z-index:1; width:100%;}
   .hero-video{
     width:100%; height:auto; display:block;
-    -webkit-mask-image: radial-gradient(ellipse 78% 74% at 50% 48%, #000 46%, transparent 78%);
-    mask-image: radial-gradient(ellipse 78% 74% at 50% 48%, #000 46%, transparent 78%);
+    border-radius:18px;
+    -webkit-mask-image: radial-gradient(ellipse 92% 88% at 50% 50%, #000 55%, transparent 86%);
+    mask-image: radial-gradient(ellipse 92% 88% at 50% 50%, #000 55%, transparent 86%);
   }
   .video-edge-fade{
-    position:absolute; inset:-8%; z-index:2; pointer-events:none;
+    position:absolute; inset:-4%; z-index:2; pointer-events:none;
     background:
-      radial-gradient(ellipse 66% 62% at 50% 48%, transparent 42%, rgba(10,10,12,.5) 70%, var(--ink) 92%),
-      linear-gradient(to right, var(--ink) 0%, transparent 14%, transparent 86%, var(--ink) 100%),
-      linear-gradient(to bottom, var(--ink) 0%, transparent 16%, transparent 84%, var(--ink) 100%);
-    filter:blur(16px);
+      radial-gradient(ellipse 80% 78% at 50% 50%, transparent 52%, rgba(10,10,12,.35) 78%, var(--ink) 96%);
+    filter:blur(12px);
   }
   @media (prefers-reduced-motion:reduce){
     .hero-brand-row,.hero-eyebrow,.hero h1,.hero-lead,.hero-cta,.hero-video-stage,.hero-video-glow,.btn-sheen::after{
