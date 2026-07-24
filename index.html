@@ -248,30 +248,14 @@
     position:relative; width:100%; max-width:760px; margin:0 auto;
     animation:riseIn .75s .14s cubic-bezier(.22,1,.36,1) both;
   }
-  .hero-video-glow{
-    position:absolute; inset:8% 6%; border-radius:50%;
-    background:radial-gradient(ellipse, rgba(201,161,92,.22) 0%, rgba(179,69,58,.08) 42%, transparent 72%);
-    filter:blur(36px); z-index:0;
-    animation:videoBreathe 7s ease-in-out infinite;
-  }
-  @keyframes videoBreathe{
-    0%,100%{transform:scale(1); opacity:.85;}
-    50%{transform:scale(1.05); opacity:1;}
-  }
   .video-blend-container{position:relative; z-index:1; width:100%;}
   .hero-video{
     width:100%; height:auto; display:block;
     border-radius:16px;
-  }
-  .video-edge-fade{
-    position:absolute; inset:0; z-index:2; pointer-events:none; border-radius:16px;
-    background:
-      linear-gradient(to right, var(--ink) 0%, transparent 12%, transparent 88%, var(--ink) 100%),
-      linear-gradient(to bottom, var(--ink) 0%, transparent 10%, transparent 90%, var(--ink) 100%);
-    filter:blur(10px);
+    background:#ebe4d6; /* matches video cream so theme switches don't tint edges */
   }
   @media (prefers-reduced-motion:reduce){
-    .hero-brand-row,.hero-eyebrow,.hero h1,.hero-lead,.hero-cta,.hero-video-stage,.hero-video-glow,.btn-sheen::after{
+    .hero-brand-row,.hero-eyebrow,.hero h1,.hero-lead,.hero-cta,.hero-video-stage,.btn-sheen::after{
       animation:none !important;
     }
     .btn-sheen::after{display:none;}
@@ -562,12 +546,10 @@
         <a href="#book" class="btn btn-brass btn-sheen hero-cta">Book your cut</a>
       </div>
       <div class="hero-video-stage">
-        <div class="hero-video-glow" aria-hidden="true"></div>
         <div class="video-blend-container">
           <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg" aria-label="Wake Up Barber animated logo">
             <source src="assets/wakeupbarbershop.mp4" type="video/mp4">
           </video>
-          <div class="video-edge-fade" aria-hidden="true"></div>
         </div>
       </div>
     </div>
