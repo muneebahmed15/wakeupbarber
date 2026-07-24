@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="description" content="Book your haircut online with Wake Up Barber." />
 <meta name="theme-color" content="#0a0a0c" id="themeColorMeta" />
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png?v=5" />
-<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?v=5" />
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=5" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png?v=8" />
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png?v=8" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=8" />
 <title>Wake Up Barber — Book Your Chair</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -245,29 +245,36 @@
     to{opacity:1; transform:translateY(0);}
   }
   .hero-video-stage{
-    position:relative; width:100%; max-width:520px; margin:0 auto;
+    position:relative; width:100%; max-width:480px; margin:0 auto;
     animation:riseIn .75s .14s cubic-bezier(.22,1,.36,1) both;
   }
-  /* One fixed look: circular emblem crop — no blur, no theme-tinted edges */
+  /* One fixed look: circular emblem — same framing on every screen, no live zoom */
   .hero-video-blend{
     position:relative;
     width:100%;
     aspect-ratio:1 / 1;
     border-radius:50%;
     overflow:hidden;
-    background:#ebe4d6; /* matches video cream; never changes with theme */
-    box-shadow:0 18px 40px rgba(0,0,0,.22);
+    background:#ebe4d6;
+    box-shadow:0 16px 36px rgba(0,0,0,.2);
+    touch-action:manipulation;
   }
   .hero-video{
     position:absolute;
-    left:50%; top:50%;
-    width:178%; /* 16:9 → fill the circle without letterbox bars */
-    height:auto;
-    min-height:100%;
-    transform:translate(-50%, -50%);
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center center;
+    /* lil zoomed out vs full cover; fixed — never animates */
+    transform:scale(.88);
+    transform-origin:center center;
     display:block;
     background:#ebe4d6;
     border:0;
+    pointer-events:none;
+    -webkit-user-select:none;
+    user-select:none;
   }
   @media (prefers-reduced-motion:reduce){
     .hero-brand-row,.hero-eyebrow,.hero h1,.hero-lead,.hero-cta,.hero-video-stage,.btn-sheen::after{
@@ -508,21 +515,65 @@
     .field-row{grid-template-columns:1fr;}
     .stat-row{grid-template-columns:repeat(2,1fr);}
     footer .cols{flex-direction:column;}
-    .hero-grid{grid-template-columns:1fr; gap:18px;}
-    .hero{min-height:auto; padding:20px 0 28px;}
-    .hero-copy{text-align:left;}
-    .hero-video-stage{max-width:100%; order:-1;}
+    header .bar{gap:10px; padding:8px 0;}
+    .logo-mark{height:36px;}
+    .brand-word{font-size:18px;}
+    header nav{gap:8px;}
+    header nav .btn{padding:10px 14px; font-size:13px;}
+    .hero-grid{
+      grid-template-columns:1fr;
+      gap:16px;
+      justify-items:center;
+    }
+    .hero{
+      min-height:auto;
+      padding:16px 0 28px;
+      padding-bottom:max(28px, env(safe-area-inset-bottom));
+    }
+    .hero-copy{
+      width:100%;
+      max-width:28rem;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+    .hero-brand-row{justify-content:center; margin-bottom:12px;}
+    .hero-lead{margin-inline:auto;}
+    .hero-cta{
+      width:100%;
+      max-width:320px;
+      min-height:48px;
+    }
+    .hero-video-stage{
+      width:min(72vw, 300px);
+      max-width:300px;
+      order:-1;
+      margin-inline:auto;
+    }
+    .hero-video-blend{box-shadow:0 12px 28px rgba(0,0,0,.18);}
+    /* same framing as desktop — do not re-zoom on phone */
+    .hero-video{transform:scale(.88);}
     .booking-body{padding:22px 18px 26px;}
-    #book{padding-top:40px;}
+    #book{padding-top:36px; padding-bottom:max(24px, env(safe-area-inset-bottom));}
+    .pill{min-height:44px;}
+    .date-card{min-height:70px;}
+    .slot{min-height:44px;}
+    .confirm-btn{min-height:52px; width:100%;}
   }
   @media (max-width:480px){
-    .wrap{padding:0 14px;}
+    .wrap{padding:0 14px; padding-left:max(14px, env(safe-area-inset-left)); padding-right:max(14px, env(safe-area-inset-right));}
+    .brand-word{font-size:16px;}
+    header nav a:not(.btn){display:none;} /* keep theme + Book now; Instagram in footer */
     .date-strip{gap:8px;}
     .date-card{width:62px; min-height:66px;}
     .slot-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:7px;}
-    .hero h1{font-size:clamp(40px, 12vw, 56px);}
-    .hero-logo{width:58px; height:58px;}
-    .hero-brand-name{font-size:28px;}
+    .hero h1{font-size:clamp(38px, 11vw, 52px);}
+    .hero-logo{width:52px; height:52px;}
+    .hero-brand-name{font-size:26px;}
+    .hero-video-stage{width:min(68vw, 280px); max-width:280px;}
+    .hero-eyebrow{font-size:11px;}
+    .hero-lead{font-size:15px;}
   }
 </style>
 </head>
@@ -533,7 +584,7 @@
   <header>
     <div class="wrap bar">
       <a href="#" class="brand" aria-label="Wake Up Barber home">
-        <img class="logo-mark" src="assets/wakeupbarber-logo-transparent.png?v=5" alt="" />
+        <img class="logo-mark" src="assets/wakeupbarber-logo-transparent.png?v=8" alt="" />
         <span class="brand-word">WAKE UP <span>BARBER</span></span>
       </a>
       <nav>
@@ -552,7 +603,7 @@
     <div class="wrap hero-grid">
       <div class="hero-copy">
         <div class="hero-brand-row">
-          <img class="hero-logo" src="assets/wakeupbarber-logo-transparent.png?v=5" alt="" width="68" height="68" />
+          <img class="hero-logo" src="assets/wakeupbarber-logo-transparent.png?v=8" alt="" width="68" height="68" />
           <p class="hero-brand-name">WAKE UP <span>BARBER</span></p>
         </div>
         <p class="hero-eyebrow">Long Island, NY · Online booking</p>
@@ -562,8 +613,8 @@
       </div>
       <div class="hero-video-stage">
         <div class="hero-video-blend">
-          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg?v=7" aria-label="Wake Up Barber animated logo">
-            <source src="assets/wakeupbarbershop.mp4?v=7" type="video/mp4">
+          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/wakeupbarber-poster.jpg?v=8" aria-label="Wake Up Barber animated logo">
+            <source src="assets/wakeupbarbershop.mp4?v=8" type="video/mp4">
           </video>
         </div>
       </div>
@@ -624,7 +675,7 @@
   <footer class="reveal">
     <div class="wrap cols">
       <div>
-        <img class="logo-mark" src="assets/wakeupbarber-logo-transparent.png?v=5" alt="Wake Up Barber" style="margin-bottom:10px;" />
+        <img class="logo-mark" src="assets/wakeupbarber-logo-transparent.png?v=8" alt="Wake Up Barber" style="margin-bottom:10px;" />
         <p class="meta" id="footerHours"></p>
         <p class="meta"><a href="https://www.instagram.com/wakeupbarber" target="_blank" rel="noopener">@wakeupbarber</a> · <span id="footerAddress"></span></p>
       </div>
@@ -653,7 +704,7 @@
 <div id="admin">
   <div class="admin-bar">
     <div class="wrap bar">
-      <div class="brand"><img class="logo-mark sm" src="assets/wakeupbarber-logo-transparent.png?v=5" alt="" /><span class="word display">DASHBOARD</span></div>
+      <div class="brand"><img class="logo-mark sm" src="assets/wakeupbarber-logo-transparent.png?v=8" alt="" /><span class="word display">DASHBOARD</span></div>
       <div style="display:flex; gap:10px; align-items:center;">
         <button type="button" class="theme-toggle" id="themeToggleAdmin" aria-label="Toggle light and dark theme" title="Toggle theme">
           <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg>
@@ -1050,7 +1101,7 @@
     box.innerHTML =
       '<div class="ticket">' +
         '<div class="tk-top"><div><div class="tk-label">'+(isPending ? "Request sent — awaiting OK" : "Confirmed")+'</div><h3 class="display">'+booking.service+'</h3></div>' +
-        '<img class="logo-mark sm" src="assets/wakeupbarber-logo-transparent.png?v=5" alt="Wake Up Barber" /></div>' +
+        '<img class="logo-mark sm" src="assets/wakeupbarber-logo-transparent.png?v=8" alt="Wake Up Barber" /></div>' +
         '<div class="tk-grid">' +
           '<div><span>Date</span>'+fmtDateLong(booking.date)+'</div>' +
           '<div><span>Time</span>'+fmt12(booking.time)+'</div>' +
