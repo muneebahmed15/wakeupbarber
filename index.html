@@ -739,7 +739,7 @@
 
   <div class="wrap">
     <div class="hidden" id="storageWarning" style="background:rgba(179,69,58,.15); border:1px solid var(--red); color:#e3a49c; border-radius:10px; padding:14px 16px; margin:20px 0; font-size:13.5px; line-height:1.6;">
-      <strong>Storage isn't connected yet.</strong> Bookings won't save until the KV storage step in README.txt is done in the Cloudflare dashboard. Everything else on this page still works.
+      <strong>Storage isn't connected yet.</strong> Bookings won't sync until Upstash Redis is linked on the Vercel project. Local preview still works for layout.
     </div>
     <div class="stat-row" id="statRow"></div>
 
@@ -776,7 +776,7 @@
           <div class="checkbox-row" id="closedDaysBox"></div>
         </div>
         <div class="field"><label>Payment link (optional — Venmo, CashApp, etc. Leave blank for now)</label><input id="setPayment" placeholder="https://venmo.com/..." /></div>
-        <div class="field"><label>Change PIN</label><input id="setPin" maxlength="6" placeholder="New PIN" /></div>
+        <div class="field"><label for="setPin">Change PIN</label><input id="setPin" type="password" inputmode="numeric" maxlength="6" placeholder="New 4–6 digit PIN" autocomplete="new-password" /></div>
         <button type="button" class="btn btn-brass" id="saveSettings">Save changes</button>
         <div class="save-msg" id="saveMsg"></div>
       </div>
@@ -838,7 +838,6 @@
   var DOW_FULL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   var HOME_SERVICE = "Home Service (+$25)";
   var DEFAULT_SETTINGS = {
-    pin: "1234",
     shopName: "Wake Up Barber",
     tagline: "Fresh cuts. No alarm needed.",
     instagram: "wakeupbarber",
@@ -872,6 +871,15 @@
 
   var storageMode = "unknown"; // remote | local | unknown
 
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function localGet(key, fallback){
     try{
       var raw = localStorage.getItem(key);
@@ -890,56 +898,95 @@
     el.classList.add("show");
   }
 
-  async function storeGet(key, fallback){
-    try{
-      var res = await fetch("/api/data/" + key, { cache: "no-store" });
-      if(res.ok){
-        var val = await res.json();
-        storageMode = "remote";
-        showStorageBanner("");
-        return (val === null || val === undefined) ? fallback : val;
-      }
-    }catch(e){ /* fall through to local */ }
-    storageMode = "local";
-    showStorageBanner("Cloud sync is offline on this device — bookings still save here until Redis is connected.");
-    return localGet(key, fallback);
-  }
-  async function storeSet(key, value){
-    // Always mirror locally so refresh doesn't lose data if remote is down
-    try{ localSet(key, value); }catch(e){}
-    try{
-      var res = await fetch("/api/data/" + key, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(value)
-      });
-      if(res.ok){
-        storageMode = "remote";
-        showStorageBanner("");
-        return true;
-      }
-      var err = {};
-      try{ err = await res.json(); }catch(_e){}
-      storageMode = "local";
-      showStorageBanner("Couldn't sync to the cloud yet. Your booking is saved on this phone/browser.");
-      console.error("storage set failed", key, err);
-      return false;
-    }catch(e){
-      storageMode = "local";
-      showStorageBanner("Couldn't sync to the cloud yet. Your booking is saved on this phone/browser.");
-      console.error("storage set failed", key, e);
-      return false;
+  async function apiJson(url, options){
+    var opts = options || {};
+    opts.credentials = "same-origin";
+    opts.cache = opts.cache || "no-store";
+    if(opts.body && typeof opts.body !== "string"){
+      opts.headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+      opts.body = JSON.stringify(opts.body);
     }
+    var res = await fetch(url, opts);
+    var data = null;
+    try{ data = await res.json(); }catch(_e){ data = null; }
+    return { res: res, data: data };
   }
 
-  async function loadAll(){
-    state.settings = await storeGet("wub_settings", DEFAULT_SETTINGS);
+  async function loadPublic(){
+    try{
+      var out = await apiJson("/api/public/bootstrap");
+      if(out.res.ok && out.data){
+        storageMode = "remote";
+        showStorageBanner("");
+        state.settings = Object.assign({}, DEFAULT_SETTINGS, out.data.settings || {});
+        state.bookings = Array.isArray(out.data.occupancy) ? out.data.occupancy : [];
+        state.blocked = Array.isArray(out.data.blocked) ? out.data.blocked : [];
+        state.closedDates = Array.isArray(out.data.closedDates) ? out.data.closedDates : [];
+        normalizeSettings();
+        return true;
+      }
+      if(out.res.status === 500){
+        storageMode = "local";
+        showStorageBanner("Cloud sync is offline — bookings need Redis connected on Vercel.");
+      }
+    }catch(e){
+      storageMode = "local";
+      showStorageBanner("Cloud sync is offline — bookings need Redis connected on Vercel.");
+    }
+    // Soft local fallback for UI chrome only (not authoritative bookings)
+    state.settings = Object.assign({}, DEFAULT_SETTINGS, localGet("wub_settings_public", {}));
+    state.bookings = localGet("wub_occupancy", []);
+    state.blocked = localGet("wub_blocked", []);
+    state.closedDates = localGet("wub_closedDates", []);
+    normalizeSettings();
+    return false;
+  }
+
+  async function loadAdmin(){
+    var out = await apiJson("/api/admin/state");
+    if(out.res.status === 401){
+      state.isAdmin = false;
+      throw new Error("unauthorized");
+    }
+    if(!out.res.ok) throw new Error((out.data && out.data.error) || "Failed to load admin data");
+    storageMode = "remote";
+    showStorageBanner("");
+    state.settings = Object.assign({}, DEFAULT_SETTINGS, out.data.settings || {});
+    state.bookings = Array.isArray(out.data.bookings) ? out.data.bookings : [];
+    state.blocked = Array.isArray(out.data.blocked) ? out.data.blocked : [];
+    state.closedDates = Array.isArray(out.data.closedDates) ? out.data.closedDates : [];
+    normalizeSettings();
+    return true;
+  }
+
+  async function saveAdmin(partial){
+    var out = await apiJson("/api/admin/state", { method: "PUT", body: partial });
+    if(out.res.status === 401){
+      state.isAdmin = false;
+      showClient();
+      openPinModal();
+      throw new Error("Session expired — log in again.");
+    }
+    if(!out.res.ok) throw new Error((out.data && out.data.error) || "Save failed");
+    state.settings = Object.assign({}, DEFAULT_SETTINGS, out.data.settings || state.settings);
+    state.bookings = Array.isArray(out.data.bookings) ? out.data.bookings : state.bookings;
+    state.blocked = Array.isArray(out.data.blocked) ? out.data.blocked : state.blocked;
+    state.closedDates = Array.isArray(out.data.closedDates) ? out.data.closedDates : state.closedDates;
+    normalizeSettings();
+    return true;
+  }
+
+  function normalizeSettings(){
     if(!state.settings.services) state.settings.services = DEFAULT_SETTINGS.services.slice();
     state.settings.services = state.settings.services.filter(function(s){ return s !== "Beard Trim"; });
     if(!state.settings.services.length) state.settings.services = DEFAULT_SETTINGS.services.slice();
-    state.bookings = await storeGet("wub_bookings", []);
-    state.blocked = await storeGet("wub_blocked", []);
-    state.closedDates = await storeGet("wub_closedDates", []);
+    if(!Array.isArray(state.settings.closedDays)) state.settings.closedDays = [0];
+    try{ localSet("wub_settings_public", state.settings); }catch(e){}
+  }
+
+  async function loadAll(){
+    if(state.isAdmin) return loadAdmin();
+    return loadPublic();
   }
 
   function pad(n){ return n < 10 ? "0"+n : ""+n; }
@@ -1004,7 +1051,8 @@
       var b = document.createElement("button");
       b.type = "button";
       b.className = "pill" + (state.selectedService===s ? " active":"");
-      b.innerHTML = (ICONS[s]||DEFAULT_ICON) + "<span>"+s+"</span>";
+      b.innerHTML = (ICONS[s]||DEFAULT_ICON) + "<span></span>";
+      b.querySelector("span").textContent = s;
       b.onclick = function(){ state.selectedService = s; renderServicePills(); toggleAddressField(); updateConfirmState(); updateBookingProgress(); };
       box.appendChild(b);
     });
@@ -1036,8 +1084,7 @@
         card.onclick = async function(){
           state.selectedDate = key; state.selectedTime = null;
           renderDateStrip(); renderSlotArea(); updateConfirmState(); updateBookingProgress();
-          state.bookings = await storeGet("wub_bookings", state.bookings);
-          state.blocked = await storeGet("wub_blocked", state.blocked);
+          await loadPublic();
           renderDateStrip(); renderSlotArea(); updateConfirmState(); updateBookingProgress();
         };
       }
@@ -1121,31 +1168,46 @@
     var isPending = booking.status === "pending";
     box.innerHTML =
       '<div class="ticket">' +
-        '<div class="tk-top"><div><div class="tk-label">'+(isPending ? "Request sent — awaiting OK" : "Confirmed")+'</div><h3 class="display">'+booking.service+'</h3></div>' +
+        '<div class="tk-top"><div><div class="tk-label">'+(isPending ? "Request sent — awaiting OK" : "Confirmed")+'</div><h3 class="display"></h3></div>' +
         '<img class="logo-mark sm" src="assets/wakeupbarber-logo-transparent.png?v=11" alt="Wake Up Barber" /></div>' +
         '<div class="tk-grid">' +
-          '<div><span>Date</span>'+fmtDateLong(booking.date)+'</div>' +
-          '<div><span>Time</span>'+fmt12(booking.time)+'</div>' +
-          '<div><span>Name</span>'+booking.name+'</div>' +
-          '<div><span>Phone</span>'+booking.phone+'</div>' +
+          '<div><span>Date</span><b data-f="date"></b></div>' +
+          '<div><span>Time</span><b data-f="time"></b></div>' +
+          '<div><span>Name</span><b data-f="name"></b></div>' +
+          '<div><span>Phone</span><b data-f="phone"></b></div>' +
         '</div>' +
-        (booking.address ? '<div style="margin-bottom:14px;"><span style="display:block;color:var(--bone-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Address</span>'+booking.address+'</div>' : '') +
-        (booking.note ? '<div style="margin-bottom:14px;"><span style="display:block;color:var(--bone-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Note</span>'+booking.note+'</div>' : '') +
+        '<div data-f="address-wrap" style="margin-bottom:14px; display:none;"><span style="display:block;color:var(--bone-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Address</span><b data-f="address"></b></div>' +
+        '<div data-f="note-wrap" style="margin-bottom:14px; display:none;"><span style="display:block;color:var(--bone-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Note</span><b data-f="note"></b></div>' +
         '<div class="tk-actions">' +
-          (isPending ? '' : '<a class="btn btn-brass" href="'+icsDataUrl(booking)+'" download="appointment.ics">Add to calendar</a>') +
+          (isPending ? '' : '<a class="btn btn-brass" data-f="ics" download="appointment.ics">Add to calendar</a>') +
           '<button type="button" class="btn btn-ghost" id="bookAnotherBtn">Book another</button>' +
         '</div>' +
         '<p style="color:var(--bone-dim); font-size:13px; margin-top:16px; margin-bottom:0;">' +
         (isPending ? "Your slot is held — he'll text to confirm the home visit before it's locked in." : "Saved — your barber will see this on his dashboard.") +
         '</p>' +
       '</div>';
+    box.querySelector("h3").textContent = booking.service;
+    box.querySelector('[data-f="date"]').textContent = fmtDateLong(booking.date);
+    box.querySelector('[data-f="time"]').textContent = fmt12(booking.time);
+    box.querySelector('[data-f="name"]').textContent = booking.name;
+    box.querySelector('[data-f="phone"]').textContent = booking.phone;
+    if(booking.address){
+      box.querySelector('[data-f="address-wrap"]').style.display = "block";
+      box.querySelector('[data-f="address"]').textContent = booking.address;
+    }
+    if(booking.note){
+      box.querySelector('[data-f="note-wrap"]').style.display = "block";
+      box.querySelector('[data-f="note"]').textContent = booking.note;
+    }
+    var ics = box.querySelector('[data-f="ics"]');
+    if(ics) ics.setAttribute("href", icsDataUrl(booking));
     document.getElementById("bookingForm").style.display = "none";
-        document.getElementById("bookAnotherBtn").onclick = function(){
+    document.getElementById("bookAnotherBtn").onclick = function(){
       state.selectedDate = null; state.selectedTime = null;
       document.getElementById("cName").value = ""; document.getElementById("cPhone").value=""; document.getElementById("cNote").value=""; document.getElementById("cAddress").value="";
       box.innerHTML = "";
       document.getElementById("bookingForm").style.display = "block";
-            renderDateStrip(); renderSlotArea(); updateConfirmState();
+      renderDateStrip(); renderSlotArea(); updateConfirmState();
     };
   }
 
@@ -1166,25 +1228,36 @@
       renderSlotArea();
       return;
     }
-    msg.textContent = "";
-    var booking = {
-      id: "b_" + Date.now() + "_" + Math.random().toString(36).slice(2,7),
-      date: state.selectedDate, time: state.selectedTime,
+    msg.className = "form-msg";
+    msg.textContent = "Booking…";
+    var payload = {
+      date: state.selectedDate,
+      time: state.selectedTime,
       service: service,
-      name: name, phone: phone, note: note,
-      address: isHome ? address : "",
-      status: isHome ? "pending" : "booked", createdAt: new Date().toISOString()
+      name: name,
+      phone: phone,
+      note: note,
+      address: isHome ? address : ""
     };
-    state.bookings.push(booking);
-    var saved = await storeSet("wub_bookings", state.bookings);
-    renderDateStrip();
-    renderTicket(booking);
-    if(!saved){
-      msg.className = "form-msg error";
-      msg.textContent = "Booked on this device. Cloud sync is still connecting — tell the barber if you booked from another phone.";
-    } else {
+    try{
+      var out = await apiJson("/api/bookings", { method: "POST", body: payload });
+      if(!out.res.ok){
+        msg.className = "form-msg error";
+        msg.textContent = (out.data && out.data.error) || "Couldn't book that slot.";
+        await loadPublic();
+        renderDateStrip(); renderSlotArea();
+        return;
+      }
+      var booking = out.data.booking;
+      // Refresh occupancy so the slot shows taken
+      await loadPublic();
+      renderDateStrip();
+      renderTicket(booking);
       msg.className = "form-msg ok";
       msg.textContent = "";
+    }catch(err){
+      msg.className = "form-msg error";
+      msg.textContent = "Couldn't reach the server. Check your connection and try again.";
     }
   }
 
@@ -1237,42 +1310,76 @@
     var box = document.getElementById("tab-bookings");
     var list = upcomingBookings();
     if(list.length === 0){
-      box.innerHTML = '<p class="empty-note">Nothing booked yet. Your booking link is this page — send clients here.</p>';
+      box.textContent = "";
+      var empty = document.createElement("p");
+      empty.className = "empty-note";
+      empty.textContent = "Nothing booked yet. Your booking link is this page — send clients here.";
+      box.appendChild(empty);
       return;
     }
     var byDate = {};
     list.forEach(function(b){ (byDate[b.date] = byDate[b.date]||[]).push(b); });
-    var html = "";
+    box.textContent = "";
     Object.keys(byDate).sort().forEach(function(key){
-      html += '<div class="day-group"><h4>'+fmtDateLong(key)+'</h4>';
+      var group = document.createElement("div");
+      group.className = "day-group";
+      var h4 = document.createElement("h4");
+      h4.textContent = fmtDateLong(key);
+      group.appendChild(h4);
       byDate[key].forEach(function(b){
         var isPending = b.status === "pending";
-        var subLine = '<a href="tel:'+b.phone.replace(/[^0-9+]/g,"")+'">'+b.phone+'</a>';
-        if(b.address) subLine += ' · Home: '+b.address;
-        if(b.note) subLine += ' · '+b.note;
-        html +=
-          '<div class="booking-row'+(isPending ? " pending":"")+'" data-id="'+b.id+'">' +
-            '<div class="time">'+fmt12(b.time)+'</div>' +
-            '<div class="info"><div class="nm">'+b.name+(isPending ? ' <span class="pending-tag">Needs approval</span>':'')+'</div>' +
-              '<div class="sub">'+subLine+'</div></div>' +
-            '<div class="tag">'+b.service+'</div>' +
-            '<div class="row-actions">' +
-            (isPending ?
-              '<button type="button" class="icon-btn ok" title="Approve" data-act="approve" data-id="'+b.id+'"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></button>' +
-              '<button type="button" class="icon-btn danger" title="Decline" data-act="decline" data-id="'+b.id+'"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
-              :
-              '<button type="button" class="icon-btn ok" title="Mark done" data-act="done" data-id="'+b.id+'"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></button>' +
-              '<button type="button" class="icon-btn danger" title="Cancel" data-act="cancel" data-id="'+b.id+'"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
-            ) +
-            '</div>' +
-          '</div>';
+        var row = document.createElement("div");
+        row.className = "booking-row" + (isPending ? " pending" : "");
+        row.setAttribute("data-id", b.id);
+
+        var timeEl = document.createElement("div");
+        timeEl.className = "time";
+        timeEl.textContent = fmt12(b.time);
+
+        var info = document.createElement("div");
+        info.className = "info";
+        var nm = document.createElement("div");
+        nm.className = "nm";
+        nm.textContent = b.name;
+        if(isPending){
+          var tag = document.createElement("span");
+          tag.className = "pending-tag";
+          tag.textContent = " Needs approval";
+          nm.appendChild(tag);
+        }
+        var sub = document.createElement("div");
+        sub.className = "sub";
+        var tel = document.createElement("a");
+        tel.href = "tel:" + String(b.phone || "").replace(/[^0-9+]/g, "");
+        tel.textContent = b.phone || "";
+        sub.appendChild(tel);
+        if(b.address) sub.appendChild(document.createTextNode(" · Home: " + b.address));
+        if(b.note) sub.appendChild(document.createTextNode(" · " + b.note));
+        info.appendChild(nm);
+        info.appendChild(sub);
+
+        var svc = document.createElement("div");
+        svc.className = "tag";
+        svc.textContent = b.service;
+
+        var actions = document.createElement("div");
+        actions.className = "row-actions";
+        actions.innerHTML = isPending
+          ? '<button type="button" class="icon-btn ok" title="Approve" data-act="approve"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></button><button type="button" class="icon-btn danger" title="Decline" data-act="decline"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+          : '<button type="button" class="icon-btn ok" title="Mark done" data-act="done"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></button><button type="button" class="icon-btn danger" title="Cancel" data-act="cancel"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+
+        row.appendChild(timeEl);
+        row.appendChild(info);
+        row.appendChild(svc);
+        row.appendChild(actions);
+        group.appendChild(row);
       });
-      html += '</div>';
+      box.appendChild(group);
     });
-    box.innerHTML = html;
     box.querySelectorAll("[data-act]").forEach(function(btn){
       btn.onclick = async function(){
-        var id = btn.getAttribute("data-id");
+        var row = btn.closest("[data-id]");
+        var id = row && row.getAttribute("data-id");
         var act = btn.getAttribute("data-act");
         var b = state.bookings.find(function(x){ return x.id===id; });
         if(!b) return;
@@ -1280,8 +1387,12 @@
         else if(act === "cancel") b.status = "cancelled";
         else if(act === "approve") b.status = "booked";
         else if(act === "decline") b.status = "cancelled";
-        await storeSet("wub_bookings", state.bookings);
-        renderStats(); renderAdminBookings();
+        try{
+          await saveAdmin({ bookings: state.bookings });
+          renderStats(); renderAdminBookings();
+        }catch(err){
+          alert(err.message || "Couldn't update booking");
+        }
       };
     });
   }
@@ -1331,8 +1442,10 @@
           } else {
             state.blocked.push({date:key, time:t});
           }
-          await storeSet("wub_blocked", state.blocked);
-          renderAdminSlotGrid();
+          try{
+            await saveAdmin({ blocked: state.blocked });
+            renderAdminSlotGrid();
+          }catch(err){ alert(err.message || "Couldn't update availability"); }
         };
       }
       grid.appendChild(el);
@@ -1347,8 +1460,13 @@
       } else {
         state.closedDates = state.closedDates.filter(function(d){ return d!==key; });
       }
-      await storeSet("wub_closedDates", state.closedDates);
-      renderAdminSlotGrid();
+      try{
+        await saveAdmin({ closedDates: state.closedDates });
+        renderAdminSlotGrid();
+      }catch(err){
+        e.target.checked = !e.target.checked;
+        alert(err.message || "Couldn't update closed day");
+      }
     };
   }
 
@@ -1377,25 +1495,30 @@
   }
 
   async function saveSettingsHandler(){
-    var s = state.settings;
-    s.shopName = document.getElementById("setShopName").value.trim() || s.shopName;
-    s.tagline = document.getElementById("setTagline").value.trim();
-    s.instagram = document.getElementById("setInstagram").value.trim().replace("@","");
-    s.address = document.getElementById("setAddress").value.trim();
-    s.hoursStart = document.getElementById("setStart").value || s.hoursStart;
-    s.hoursEnd = document.getElementById("setEnd").value || s.hoursEnd;
-    s.paymentLink = document.getElementById("setPayment").value.trim();
+    var s = {
+      shopName: document.getElementById("setShopName").value.trim(),
+      tagline: document.getElementById("setTagline").value.trim(),
+      instagram: document.getElementById("setInstagram").value.trim().replace("@",""),
+      address: document.getElementById("setAddress").value.trim(),
+      hoursStart: document.getElementById("setStart").value,
+      hoursEnd: document.getElementById("setEnd").value,
+      paymentLink: document.getElementById("setPayment").value.trim(),
+      closedDays: []
+    };
     var newPin = document.getElementById("setPin").value.trim();
-    if(newPin){ s.pin = newPin; }
-    var closed = [];
+    if(newPin) s.pin = newPin;
     DOW_FULL.forEach(function(name,i){
-      if(document.getElementById("cd_"+i).checked) closed.push(i);
+      if(document.getElementById("cd_"+i).checked) s.closedDays.push(i);
     });
-    s.closedDays = closed;
-    await storeSet("wub_settings", s);
-    document.getElementById("saveMsg").textContent = "Saved.";
-    setTimeout(function(){ document.getElementById("saveMsg").textContent=""; }, 2500);
-    renderClientFooter(); renderDateStrip(); renderAdminDateStrip(); renderAdminSlotGrid();
+    try{
+      await saveAdmin({ settings: s });
+      document.getElementById("setPin").value = "";
+      document.getElementById("saveMsg").textContent = "Saved.";
+      setTimeout(function(){ document.getElementById("saveMsg").textContent=""; }, 2500);
+      renderClientFooter(); renderDateStrip(); renderAdminDateStrip(); renderAdminSlotGrid();
+    }catch(err){
+      document.getElementById("saveMsg").textContent = err.message || "Save failed";
+    }
   }
 
   function switchAdminTab(tab){
@@ -1422,8 +1545,8 @@
   async function checkStorageHealth(){
     var banner = document.getElementById("storageWarning");
     try{
-      var res = await fetch("/api/data/wub_settings", { cache: "no-store" });
-      banner.classList.toggle("hidden", res.ok);
+      var out = await apiJson("/api/admin/session");
+      banner.classList.toggle("hidden", out.res.ok || out.res.status === 401);
     }catch(e){
       banner.classList.remove("hidden");
     }
@@ -1433,24 +1556,37 @@
     state.isAdmin = true;
     document.getElementById("client").classList.add("hide");
     document.getElementById("admin").classList.add("show");
-    await loadAll();
+    try{
+      await loadAdmin();
+    }catch(err){
+      state.isAdmin = false;
+      document.getElementById("admin").classList.remove("show");
+      document.getElementById("client").classList.remove("hide");
+      openPinModal();
+      document.getElementById("pinErr").textContent = "Session expired — enter your PIN.";
+      return;
+    }
     renderAdmin();
     switchAdminTab("bookings");
     window.scrollTo(0,0);
     checkStorageHealth();
     if(adminPollTimer) clearInterval(adminPollTimer);
     adminPollTimer = setInterval(async function(){
-      await loadAll();
-      renderStats();
-      if(state.adminTab === "bookings") renderAdminBookings();
-      if(state.adminTab === "availability") renderAdminSlotGrid();
+      try{
+        await loadAdmin();
+        renderStats();
+        if(state.adminTab === "bookings") renderAdminBookings();
+        if(state.adminTab === "availability") renderAdminSlotGrid();
+      }catch(_e){ /* session may have expired */ }
     }, 15000);
   }
-  function showClient(){
+  async function showClient(){
     state.isAdmin = false;
     if(adminPollTimer){ clearInterval(adminPollTimer); adminPollTimer = null; }
+    try{ await apiJson("/api/admin/logout", { method: "POST", body: {} }); }catch(_e){}
     document.getElementById("admin").classList.remove("show");
     document.getElementById("client").classList.remove("hide");
+    await loadPublic();
     renderClient();
     window.scrollTo(0,0);
   }
@@ -1467,16 +1603,28 @@
     document.getElementById("bookingForm").addEventListener("submit", handleSubmit);
     document.getElementById("openAdminLink").onclick = openPinModal;
     document.getElementById("pinCancel").onclick = closePinModal;
-    document.getElementById("pinSubmit").onclick = function(){
+    document.getElementById("pinSubmit").onclick = async function(){
       var val = document.getElementById("pinInput").value.trim();
-      if(val === state.settings.pin){ closePinModal(); showAdmin(); }
-      else { document.getElementById("pinErr").textContent = "Wrong PIN."; }
+      var err = document.getElementById("pinErr");
+      err.textContent = "";
+      if(!/^\d{4,6}$/.test(val)){ err.textContent = "Enter your 4–6 digit PIN."; return; }
+      try{
+        var out = await apiJson("/api/admin/login", { method: "POST", body: { pin: val } });
+        if(!out.res.ok){
+          err.textContent = (out.data && out.data.error) || "Wrong PIN.";
+          return;
+        }
+        closePinModal();
+        await showAdmin();
+      }catch(_e){
+        err.textContent = "Couldn't reach the server.";
+      }
     };
     document.getElementById("pinInput").addEventListener("keydown", function(e){
       if(e.key === "Enter") document.getElementById("pinSubmit").click();
     });
-    document.getElementById("exitAdmin").onclick = showClient;
-    document.getElementById("logoutAdmin").onclick = showClient;
+    document.getElementById("exitAdmin").onclick = function(){ showClient(); };
+    document.getElementById("logoutAdmin").onclick = function(){ showClient(); };
     document.querySelectorAll(".tab").forEach(function(t){
       t.onclick = function(){ switchAdminTab(t.getAttribute("data-tab")); };
     });
@@ -1486,7 +1634,16 @@
   }
 
   async function init(){
-    await loadAll();
+    // Resume admin session if cookie still valid
+    try{
+      var sess = await apiJson("/api/admin/session");
+      if(sess.res.ok){
+        await showAdmin();
+        bindEvents();
+        return;
+      }
+    }catch(_e){}
+    await loadPublic();
     bindEvents();
     renderClient();
   }
