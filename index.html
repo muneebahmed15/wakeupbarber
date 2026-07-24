@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Book your haircut online with Wake Up Barber." />
 <meta name="theme-color" content="#0a0a0c" />
-<link rel="icon" type="image/png" href="assets/wakeupbarber-logo-transparent.png" />
+<link rel="icon" type="image/png" href="assets/wakeupbarber-logo-main.png" />
 <title>Wake Up Barber — Book Your Chair</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -145,11 +145,11 @@
     padding-bottom:20px;
   }
   .hero-logo{
-    width:min(300px, 68vw);
+    width:min(360px, 78vw);
     height:auto;
     border-radius:50%;
-    margin:8px 0 20px;
-    filter:drop-shadow(0 8px 40px rgba(201,161,92,.22)) drop-shadow(0 2px 16px rgba(0,0,0,.5));
+    margin:4px 0 18px;
+    filter:drop-shadow(0 10px 48px rgba(201,161,92,.28)) drop-shadow(0 2px 16px rgba(0,0,0,.55));
     animation:logoIn 1s cubic-bezier(.22,1,.36,1) both;
   }
   @keyframes logoIn{
@@ -177,8 +177,8 @@
   }
   .hero-video-stage{
     position:relative;
-    width:min(920px, 108vw);
-    margin:0 auto -40px;
+    width:min(1180px, 100vw);
+    margin:0 auto -48px;
     display:flex; align-items:center; justify-content:center;
     animation:logoIn 1s .45s cubic-bezier(.22,1,.36,1) both;
   }
@@ -204,17 +204,18 @@
     width:100%; height:auto; display:block;
     border-radius:0;
     -webkit-mask-image:
-      radial-gradient(ellipse 78% 72% at 50% 48%, #000 42%, transparent 76%);
+      radial-gradient(ellipse 82% 76% at 50% 48%, #000 40%, transparent 78%);
     mask-image:
-      radial-gradient(ellipse 78% 72% at 50% 48%, #000 42%, transparent 76%);
+      radial-gradient(ellipse 82% 76% at 50% 48%, #000 40%, transparent 78%);
   }
   .video-edge-fade{
-    position:absolute; inset:-4%;
+    position:absolute; inset:-6%;
     z-index:2; pointer-events:none;
     background:
-      radial-gradient(ellipse 70% 65% at 50% 50%, transparent 44%, rgba(10,10,12,.4) 68%, var(--ink) 88%),
-      linear-gradient(to right, var(--ink) 0%, transparent 10%, transparent 90%, var(--ink) 100%);
-    filter:blur(14px);
+      radial-gradient(ellipse 68% 64% at 50% 48%, transparent 40%, rgba(10,10,12,.45) 66%, var(--ink) 90%),
+      linear-gradient(to right, var(--ink) 0%, transparent 12%, transparent 88%, var(--ink) 100%),
+      linear-gradient(to bottom, var(--ink) 0%, transparent 14%, transparent 86%, var(--ink) 100%);
+    filter:blur(18px);
   }
 
   @media (prefers-reduced-motion:reduce){
@@ -510,8 +511,8 @@
     .date-card{width:62px; min-height:66px;}
     .slot-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:7px;}
     .hero h1{font-size:clamp(44px, 13vw, 60px);}
-    .hero-logo{width:min(260px, 74vw);}
-    .hero-video-stage{width:112vw; margin-left:-6vw;}
+    .hero-logo{width:min(300px, 82vw);}
+    .hero-video-stage{width:100vw; margin-left:calc(50% - 50vw);}
   }
 </style>
 </head>
