@@ -449,7 +449,33 @@
   .ticket h3{font-size:34px; margin:4px 0 0;}
   .tk-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0; font-size:14.5px;}
   .tk-grid div span{display:block; color:var(--bone-dim); font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px;}
+  .tk-location{
+    margin:4px 0 18px;
+    padding:14px 14px 12px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--panel);
+  }
+  .tk-location .lbl{
+    display:block; color:var(--bone-dim); font-size:11.5px;
+    text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px;
+  }
+  .tk-location .addr{
+    font-size:15px; font-weight:600; line-height:1.35; margin:0 0 12px;
+  }
+  .tk-location .map-actions{
+    display:flex; flex-wrap:wrap; gap:8px;
+  }
+  .tk-location .map-actions .btn{
+    padding:10px 14px; font-size:13px; min-height:40px;
+  }
+  .tk-location .copy-status{
+    margin:8px 0 0; min-height:16px; font-size:12.5px; color:var(--green);
+  }
   .tk-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+  @media (max-width:480px){
+    .tk-location .map-actions .btn{flex:1 1 calc(50% - 8px); justify-content:center;}
+  }
 
   /* ---------- Footer ---------- */
   footer{border-top:1px solid var(--line); padding:40px 0 52px; margin-top:24px;}
@@ -841,7 +867,7 @@
     shopName: "Wake Up Barber",
     tagline: "Fresh cuts. No alarm needed.",
     instagram: "wakeupbarber",
-    address: "Long Island, NY",
+    address: "644 Broadway, Westbury, NY",
     hoursStart: "09:00",
     hoursEnd: "19:00",
     closedDays: [0],
@@ -1163,9 +1189,45 @@
     return "data:text/calendar;charset=utf8," + encodeURIComponent(ics);
   }
 
+  function shopAddress(){
+    return (state.settings && state.settings.address) || "644 Broadway, Westbury, NY";
+  }
+  function mapsLinks(address){
+    var q = encodeURIComponent(address);
+    return {
+      google: "https://www.google.com/maps/search/?api=1&query=" + q,
+      apple: "https://maps.apple.com/?q=" + q
+    };
+  }
+  async function copyText(text){
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    }catch(_e){}
+    try{
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    }catch(_e2){
+      return false;
+    }
+  }
+
   function renderTicket(booking){
     var box = document.getElementById("ticketArea");
     var isPending = booking.status === "pending";
+    var isHome = booking.service === HOME_SERVICE;
+    var shop = shopAddress();
+    var maps = mapsLinks(shop);
     box.innerHTML =
       '<div class="ticket">' +
         '<div class="tk-top"><div><div class="tk-label">'+(isPending ? "Request sent — awaiting OK" : "Confirmed")+'</div><h3 class="display"></h3></div>' +
@@ -1176,8 +1238,20 @@
           '<div><span>Name</span><b data-f="name"></b></div>' +
           '<div><span>Phone</span><b data-f="phone"></b></div>' +
         '</div>' +
-        '<div data-f="address-wrap" style="margin-bottom:14px; display:none;"><span style="display:block;color:var(--bone-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Address</span><b data-f="address"></b></div>' +
+        '<div data-f="address-wrap" style="margin-bottom:14px; display:none;"><span style="display:block;color:var(--bone-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Home visit address</span><b data-f="address"></b></div>' +
         '<div data-f="note-wrap" style="margin-bottom:14px; display:none;"><span style="display:block;color:var(--bone-dim);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Note</span><b data-f="note"></b></div>' +
+        (!isHome ? (
+          '<div class="tk-location" data-f="shop-location">' +
+            '<span class="lbl">Shop location</span>' +
+            '<p class="addr" data-f="shop-addr"></p>' +
+            '<div class="map-actions">' +
+              '<button type="button" class="btn btn-ghost" data-f="copy-addr">Copy address</button>' +
+              '<a class="btn btn-ghost" data-f="apple-maps" target="_blank" rel="noopener">Apple Maps</a>' +
+              '<a class="btn btn-brass" data-f="google-maps" target="_blank" rel="noopener">Google Maps</a>' +
+            '</div>' +
+            '<p class="copy-status" data-f="copy-status" aria-live="polite"></p>' +
+          '</div>'
+        ) : '') +
         '<div class="tk-actions">' +
           (isPending ? '' : '<a class="btn btn-brass" data-f="ics" download="appointment.ics">Add to calendar</a>') +
           '<button type="button" class="btn btn-ghost" id="bookAnotherBtn">Book another</button>' +
@@ -1198,6 +1272,23 @@
     if(booking.note){
       box.querySelector('[data-f="note-wrap"]').style.display = "block";
       box.querySelector('[data-f="note"]').textContent = booking.note;
+    }
+    if(!isHome){
+      var shopAddrEl = box.querySelector('[data-f="shop-addr"]');
+      if(shopAddrEl) shopAddrEl.textContent = shop;
+      var apple = box.querySelector('[data-f="apple-maps"]');
+      var google = box.querySelector('[data-f="google-maps"]');
+      if(apple) apple.href = maps.apple;
+      if(google) google.href = maps.google;
+      var copyBtn = box.querySelector('[data-f="copy-addr"]');
+      var copyStatus = box.querySelector('[data-f="copy-status"]');
+      if(copyBtn){
+        copyBtn.onclick = async function(){
+          var ok = await copyText(shop);
+          if(copyStatus) copyStatus.textContent = ok ? "Address copied." : "Couldn't copy — select the address above.";
+          if(ok) setTimeout(function(){ if(copyStatus) copyStatus.textContent = ""; }, 2200);
+        };
+      }
     }
     var ics = box.querySelector('[data-f="ics"]');
     if(ics) ics.setAttribute("href", icsDataUrl(booking));
