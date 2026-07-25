@@ -1,0 +1,22 @@
+{
+  "name": "wake-up-barber",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Wake Up Barber booking site on Vercel",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy",
+    "deploy:prod": "vercel deploy --prod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muneebahmed15/wakeupbarber.git"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@upstash/redis": "^1.38.0"
+  },
+  "devDependencies": {
+    "vercel": "^56.5.0"
+  }
+}
